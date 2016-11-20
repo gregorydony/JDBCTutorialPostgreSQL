@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="PostgreSQL Properties" default="all" basedir=".">
+
+
+    <property name="JAVAC" value="C:\\Pgm\\Java\\jdk1.8.0_65\\javac"/>
+    <property name="JAVA" value="C:\\Pgm\\Java\\jdk1.8.0_65\\bin\\java"/>
+
+
+  <property name="PROPERTIESFILE" value="properties/postgresql-sample-properties.xml"/>
+  <property name="POSTGRESQLDRIVER" value="L:\\projets\\tutorial\\jdbc\\JDBCTutorial\\lib\\postgresql-9.4.1211.jar"/>
+
+  <path id="CLASSPATH">
+    <pathelement location="classes"/>
+    <pathelement location="${POSTGRESQLDRIVER}"/>
+    <pathelement location="lib/JDBCTutorial.jar"/>
+  </path>
+
+  <property name="DB.VENDOR" value="postgres"/>
+  <property name="DB.DRIVER" value="org.postgresql.Driver"/>
+  <property name="DB.HOST" value="192.168.99.100"/>
+  <property name="DB.PORT" value="5432"/>
+  <property name="DB.SID" value="postgres"/>
+  <property name="DB.URL.NEWDATABASE" value="jdbc:postgresql://${DB.HOST}:${DB.PORT}/?allowMultiQueries=true"/>
+  <property name="DB.URL" value="jdbc:postgresql://${DB.HOST}:${DB.PORT}/${DB.SID}?allowMultiQueries=true"/>
+  <property name="DB.USER" value="postgres"/>
+  <property name="DB.PASSWORD" value="postgres"/>
+  <property name="DB.DELIMITER" value=";"/>
+
+</project>
+
+
