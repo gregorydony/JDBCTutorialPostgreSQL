@@ -33,25 +33,13 @@ package com.oracle.tutorial.jdbc;
 
 import com.sun.rowset.CachedRowSetImpl;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import java.sql.Statement;
-
-import java.sql.Timestamp;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.spi.SyncProviderException;
 import javax.sql.rowset.spi.SyncResolver;
+import java.net.MalformedURLException;
+import java.sql.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 
 public class CachedRowSetSample {
