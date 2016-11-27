@@ -2,7 +2,7 @@ SELECT 'Dropping procedure SHOW_SUPPLIERS' AS ' '|
 drop procedure if exists SHOW_SUPPLIERS|
 
 SELECT 'Dropping procedure GET_SUPPLIER_OF_COFFEE' AS ' '|
-drop procedure if exists GET_SUPPLIER_OF_COFFEE|
+drop procedure if exists get_supplier_of_coffee_old|
 
 SELECT 'Dropping procedure RAISE_PRICE' AS ' '|
 drop procedure if exists RAISE_PRICE|
