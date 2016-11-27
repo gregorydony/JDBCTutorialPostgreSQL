@@ -31,6 +31,7 @@
 
 package com.oracle.tutorial.jdbc;
 
+import java.math.BigDecimal;
 import java.sql.*;
 
 public class StoredFunctionPostgreSqlSample {
@@ -79,7 +80,7 @@ public class StoredFunctionPostgreSqlSample {
     public void createFunctionRaisePrice() throws SQLException {
         String functionDrop = "DROP FUNCTION IF EXISTS RAISE_PRICE( VARCHAR(32), FLOAT, NUMERIC(10, 2) );";
 
-        String functionCreate = "CREATE OR REPLACE FUNCTION RAISE_PRICE(coffeeName VARCHAR(32), maximumPercentage FLOAT, newPrice NUMERIC(10, 2))\n" +
+        String functionCreate = "CREATE OR REPLACE FUNCTION RAISE_PRICE(coffeeName VARCHAR(32), maximumPercentage REAL, newPrice NUMERIC(10, 2))\n" +
                 "  RETURNS NUMERIC(10, 2) AS $c$\n" +
                 "  DECLARE\n" +
                 "  maximumNewPrice NUMERIC(10, 2);\n" +
@@ -98,30 +99,42 @@ public class StoredFunctionPostgreSqlSample {
                 "  THEN newPrice := oldPrice;\n" +
                 "  ELSE\n" +
                 "  UPDATE COFFEES\n" +
-                "  SET COFFEES.PRICE = newPrice\n" +
-                "  WHERE COFFEES.COF_NAME = coffeeName;\n" +
+                "  SET PRICE = newPrice\n" +
+                "  WHERE COF_NAME = coffeeName;\n" +
                 "  END IF;\n" +
-                "  SELECT newPrice;\n" +
+                "  RETURN newPrice;\n" +
                 "  END;\n" +
                 "  $c$ LANGUAGE plpgsql;";
         createFunction(functionDrop, functionCreate);
     }
 
 
+    /*
+    CREATE OR REPLACE FUNCTION GET_SUPPLIER_OF_COFFEE(coffeeName VARCHAR(32))
+    RETURNS VARCHAR(40) AS $b$
+    BEGIN
+    CREATE TEMP TABLE supplierName
+    ON COMMIT DROP AS
+    SELECT SUPPLIERS.SUP_NAME
+    FROM SUPPLIERS, COFFEES
+    WHERE SUPPLIERS.SUP_ID = COFFEES.SUP_ID
+    AND coffeeName = COFFEES.COF_NAME;
+    SELECT supplierName;
+    END;
+    $b$ LANGUAGE plpgsql;
+    */
+
     public void createFunctionGetSupplierOfCoffee() throws SQLException {
-        String functionDrop = "DROP FUNCTION IF EXISTS GET_SUPPLIER_OF_COFFEE( VARCHAR(32));";
+        String functionDrop = "DROP FUNCTION IF EXISTS GET_SUPPLIER_OF_COFFEE(VARCHAR(32));";
 
         String functionCreate = "CREATE OR REPLACE FUNCTION GET_SUPPLIER_OF_COFFEE(coffeeName VARCHAR(32))\n" +
-                "  RETURNS VARCHAR(40) AS $b$\n" +
-                "  DECLARE\n" +
-                "  supplierName VARCHAR(32);\n" +
+                "  RETURNS SETOF VARCHAR(40) AS $b$\n" +
                 "  BEGIN\n" +
-                "  SELECT SUPPLIERS.SUP_NAME\n" +
-                "  INTO supplierName\n" +
+                "  RETURN QUERY SELECT " +
+                "  SUPPLIERS.SUP_NAME AS supplierName\n" +
                 "  FROM SUPPLIERS, COFFEES\n" +
                 "  WHERE SUPPLIERS.SUP_ID = COFFEES.SUP_ID\n" +
                 "  AND coffeeName = COFFEES.COF_NAME;\n" +
-                "  SELECT supplierName;\n" +
                 "  END;\n" +
                 "  $b$ LANGUAGE plpgsql;";
 
@@ -133,11 +146,9 @@ public class StoredFunctionPostgreSqlSample {
         String functionDrop = "DROP FUNCTION IF EXISTS SHOW_SUPPLIERS();";
 
         String functionCreate = "CREATE OR REPLACE FUNCTION SHOW_SUPPLIERS()\n" +
-                "  RETURNS TABLE(supplierName VARCHAR(32), coffeeName VARCHAR(32)) AS $a$\n" +
-                "  DECLARE\n" +
-                "  supplierName VARCHAR(32);\n" +
+                "  RETURNS TABLE(supplierName VARCHAR(40), coffeeName VARCHAR(32)) AS $a$\n" +
                 "  BEGIN\n" +
-                "          SELECT\n" +
+                "  RETURN QUERY SELECT\n" +
                 "  SUPPLIERS.SUP_NAME AS supplierName,\n" +
                 "  COFFEES.COF_NAME   AS coffeeName\n" +
                 "  FROM SUPPLIERS, COFFEES\n" +
@@ -149,48 +160,55 @@ public class StoredFunctionPostgreSqlSample {
         createFunction(functionDrop, functionCreate);
     }
 
-    public void runStoredProcedures(String coffeeNameArg, float maximumPercentageArg, float newPriceArg) throws SQLException {
+    public void runStoredProcedures(String coffeeNameArg, float maximumPercentageArg, BigDecimal newPriceArg) throws SQLException {
         CallableStatement cs = null;
 
         try {
+            System.out.println("\nCalling the function GET_SUPPLIER_OF_COFFEE");
+            final String getSupplierOfCoffeeSql = "select * from GET_SUPPLIER_OF_COFFEE( ? )";
+            PreparedStatement getSupplierOfCoffeePstmt = con.prepareStatement(getSupplierOfCoffeeSql);
+            getSupplierOfCoffeePstmt.setString(1, coffeeNameArg);
+            ResultSet getSupplierOfCoffeeRs = getSupplierOfCoffeePstmt.executeQuery();
+            String supplierOfCoffee = null;
+            while (getSupplierOfCoffeeRs.next()) {
+                supplierOfCoffee = getSupplierOfCoffeeRs.getString(1);
+            }
+            getSupplierOfCoffeePstmt.close();
 
-            System.out.println("\nCalling the procedure GET_SUPPLIER_OF_COFFEE");
-            cs = this.con.prepareCall("{call GET_SUPPLIER_OF_COFFEE(?, ?)}");
-            cs.setString(1, coffeeNameArg);
-            cs.registerOutParameter(2, Types.VARCHAR);
-            cs.executeQuery();
-
-            String supplierName = cs.getString(2);
-
-            if (supplierName != null) {
-                System.out.println("\nSupplier of the coffee " + coffeeNameArg + ": " + supplierName);
+            if (supplierOfCoffee != null) {
+                System.out.println("\nSupplier of the coffee " + coffeeNameArg + ": " + supplierOfCoffee);
             } else {
                 System.out.println("\nUnable to find the coffee " + coffeeNameArg);
             }
 
-            System.out.println("\nCalling the procedure SHOW_SUPPLIERS");
-            cs = this.con.prepareCall("{call SHOW_SUPPLIERS}");
-            ResultSet rs = cs.executeQuery();
+            System.out.println("\nCalling the function SHOW_SUPPLIERS");
+            final String showSuppliersSql = "select * from SHOW_SUPPLIERS()";
+            PreparedStatement showSuppliersPstmt = con.prepareStatement(showSuppliersSql);
+            ResultSet showSuppliersRs = showSuppliersPstmt.executeQuery();
 
-            while (rs.next()) {
-                String supplier = rs.getString("SUP_NAME");
-                String coffee = rs.getString("COF_NAME");
+            while (showSuppliersRs.next()) {
+                String supplier = showSuppliersRs.getString("supplierName");
+                String coffee = showSuppliersRs.getString("coffeeName");
                 System.out.println(supplier + ": " + coffee);
             }
+
+            showSuppliersRs.close();
 
             System.out.println("\nContents of COFFEES table before calling RAISE_PRICE:");
             CoffeesTable.viewTable(this.con);
 
-            System.out.println("\nCalling the procedure RAISE_PRICE");
-            cs = this.con.prepareCall("{call RAISE_PRICE(?,?,?)}");
-            cs.setString(1, coffeeNameArg);
-            cs.setFloat(2, maximumPercentageArg);
-            cs.registerOutParameter(3, Types.NUMERIC);
-            cs.setFloat(3, newPriceArg);
+            System.out.println("\nCalling the function RAISE_PRICE");
+            final String raicePriceSql = "select * from RAISE_PRICE( ? , ?, ?)";
+            PreparedStatement raicePricePstmt = con.prepareStatement(raicePriceSql);
+            raicePricePstmt.setString(1, coffeeNameArg);
+            raicePricePstmt.setFloat(2, maximumPercentageArg);
+            raicePricePstmt.setBigDecimal(3, newPriceArg);
 
-            cs.execute();
+            ResultSet raicePriceRs =  raicePricePstmt.executeQuery();
 
-            System.out.println("\nValue of newPrice after calling RAISE_PRICE: " + cs.getFloat(3));
+            while (raicePriceRs.next()) {
+                System.out.println("\nValue of newPrice after calling RAISE_PRICE: " + raicePriceRs.getFloat(1));
+            }
 
             System.out.println("\nContents of COFFEES table after calling RAISE_PRICE:");
             CoffeesTable.viewTable(this.con);
@@ -245,7 +263,7 @@ public class StoredFunctionPostgreSqlSample {
 
 
             System.out.println("\nCalling all stored procedures:");
-            myStoredProcedureSample.runStoredProcedures("Colombian", 0.10f, 19.99f);
+            myStoredProcedureSample.runStoredProcedures("Colombian", 0.10f, BigDecimal.valueOf(19.99));
 
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
