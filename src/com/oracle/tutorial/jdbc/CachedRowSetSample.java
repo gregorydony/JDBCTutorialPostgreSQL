@@ -82,7 +82,7 @@ public class CachedRowSetSample {
 
       // Setting the page size to 4, such that we
       // get the data in chunks of 4 rows @ a time.
-      crs.setPageSize(100);
+      crs.setPageSize(8);
 
       // Now get the first set of data
       crs.execute();

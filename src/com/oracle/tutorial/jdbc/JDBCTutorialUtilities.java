@@ -285,7 +285,17 @@ public class JDBCTutorialUtilities {
 
         String currentUrlString = null;
 
-        if (this.dbms.equals("mysql")) {
+        // Using a driver manager:
+        if (this.dbms.equals("postgresql")) {
+            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName +
+                    ":" + this.portNumber + "/";
+            //jdbc:postgresql://192.168.99.100:5432/postgres
+            conn =
+                    DriverManager.getConnection(currentUrlString,
+                            connectionProps);
+            this.urlString = currentUrlString + this.dbName;
+            conn.setCatalog(this.dbName);
+        } else if (this.dbms.equals("mysql")) {
             currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName +
                     ":" + this.portNumber + "/";
             conn =
