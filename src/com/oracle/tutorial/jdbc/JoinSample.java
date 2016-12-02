@@ -32,25 +32,19 @@
 package com.oracle.tutorial.jdbc;
 
 import com.sun.rowset.CachedRowSetImpl;
-
 import com.sun.rowset.JoinRowSetImpl;
 
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.JoinRowSet;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.sql.rowset.CachedRowSet;
-import javax.sql.rowset.JoinRowSet;
+public final class JoinSample extends AbstractJdbcSample {
 
-public class JoinSample {
-  
-  Connection con;
-  JDBCTutorialUtilities settings;  
-  
   public JoinSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    this.con = connArg;
-    this.settings = settingsArg;
+    super(connArg, settingsArg);
   }
 
   public static void getCoffeesBoughtBySupplier(String supplierName,

@@ -47,6 +47,8 @@ import java.sql.*;
 import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
+import static java.sql.RowIdLifetime.ROWID_UNSUPPORTED;
+
 public class JDBCTutorialUtilities {
 
     public String dbms;
@@ -97,7 +99,12 @@ public class JDBCTutorialUtilities {
 
     public static void rowIdLifetime(Connection conn) throws SQLException {
         DatabaseMetaData dbMetaData = conn.getMetaData();
-        RowIdLifetime lifetime = dbMetaData.getRowIdLifetime();
+        RowIdLifetime lifetime;
+        try {
+            lifetime = dbMetaData.getRowIdLifetime();
+        } catch (SQLFeatureNotSupportedException e) {
+            lifetime = ROWID_UNSUPPORTED;
+        }
         switch (lifetime) {
             case ROWID_UNSUPPORTED:
                 System.out.println("ROWID type not supported");
