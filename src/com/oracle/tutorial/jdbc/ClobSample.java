@@ -31,42 +31,14 @@
 
 package com.oracle.tutorial.jdbc;
 
-import java.io.BufferedReader;
+import java.io.*;
+import java.sql.*;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-
-import java.io.Reader;
-import java.io.StringWriter;
-import java.io.Writer;
-
-import java.sql.Clob;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-public class ClobSample {
-
-  private String dbName;
-  private Connection con;
-  private String dbms;
-  private JDBCTutorialUtilities settings;
+public final class ClobSample extends AbstractJdbcSample {
 
   public ClobSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = settingsArg.dbName;
-    this.dbms = settingsArg.dbms;
-    this.settings = settingsArg;
+    super(connArg, settingsArg);
   }
-
-
 
   public String retrieveExcerpt(String coffeeName,
                                 int numChar) throws SQLException {

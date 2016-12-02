@@ -34,18 +34,10 @@ package com.oracle.tutorial.jdbc;
 import java.math.BigDecimal;
 import java.sql.*;
 
-public class StoredFunctionPostgreSqlSample {
+public final class StoredFunctionPostgreSqlSample extends AbstractJdbcSample {
 
-    private String dbName;
-    private Connection con;
-    private String dbms;
-
-    public StoredFunctionPostgreSqlSample(Connection connArg, String dbName,
-                                          String dbmsArg) {
-        super();
-        this.con = connArg;
-        this.dbName = dbName;
-        this.dbms = dbmsArg;
+    public StoredFunctionPostgreSqlSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
+        super(connArg, settingsArg);
     }
 
     private void createFunction(final String functionDrop, final String functionCreate) throws SQLException {
@@ -244,8 +236,7 @@ public class StoredFunctionPostgreSqlSample {
 
             StoredFunctionPostgreSqlSample myStoredProcedureSample =
                     new StoredFunctionPostgreSqlSample(myConnection,
-                            myJDBCTutorialUtilities.dbName,
-                            myJDBCTutorialUtilities.dbms);
+                            myJDBCTutorialUtilities);
 
 //      JDBCTutorialUtilities.initializeTables(myConnection,
 //                                             myJDBCTutorialUtilities.dbName,

@@ -33,29 +33,17 @@ package com.oracle.tutorial.jdbc;
 
 import com.sun.rowset.JdbcRowSetImpl;
 
+import javax.sql.RowSet;
+import javax.sql.rowset.JdbcRowSet;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.sql.Statement;
 
-import javax.sql.RowSet;
-import javax.sql.rowset.JdbcRowSet;
+public final class JdbcRowSetSample extends AbstractJdbcSample {
 
-public class JdbcRowSetSample {
-
-  private String dbName;
-  private Connection con;
-  private String dbms;
-  private JDBCTutorialUtilities settings;
-
-  public JdbcRowSetSample(Connection connArg,
-                          JDBCTutorialUtilities settingsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = settingsArg.dbName;
-    this.dbms = settingsArg.dbms;
-    this.settings = settingsArg;
+  public JdbcRowSetSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
+    super(connArg, settingsArg);
   }
 
   public void testJdbcRowSet() throws SQLException {

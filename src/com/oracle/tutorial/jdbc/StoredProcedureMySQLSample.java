@@ -38,20 +38,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 
-public class StoredProcedureMySQLSample {
+public final class StoredProcedureMySQLSample extends AbstractJdbcSample {
 
-  private String dbName;
-  private Connection con;
-  private String dbms;
-
-  public StoredProcedureMySQLSample(Connection connArg, String dbName,
-                                    String dbmsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = dbName;
-    this.dbms = dbmsArg;
+  public StoredProcedureMySQLSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
+    super(connArg, settingsArg);
   }
-  
+
   public void createProcedureRaisePrice() throws SQLException {
     
     String createProcedure = null;
@@ -262,8 +254,7 @@ public class StoredProcedureMySQLSample {
 
       StoredProcedureMySQLSample myStoredProcedureSample =
         new StoredProcedureMySQLSample(myConnection,
-                                       myJDBCTutorialUtilities.dbName,
-                                       myJDBCTutorialUtilities.dbms);
+                                       myJDBCTutorialUtilities);
 
 //      JDBCTutorialUtilities.initializeTables(myConnection,
 //                                             myJDBCTutorialUtilities.dbName,

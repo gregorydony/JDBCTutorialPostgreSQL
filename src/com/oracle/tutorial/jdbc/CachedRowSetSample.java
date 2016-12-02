@@ -42,23 +42,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 
-public class CachedRowSetSample {
-
-  private String dbName;
-  private Connection con;
-  private String dbms;
-  private JDBCTutorialUtilities settings;
-
+public final class CachedRowSetSample extends AbstractJdbcSample {
 
   public CachedRowSetSample(Connection connArg,
                             JDBCTutorialUtilities settingsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = settingsArg.dbName;
-    this.dbms = settingsArg.dbms;
-    this.settings = settingsArg;
-
-
+    super(connArg, settingsArg);
   }
   
 

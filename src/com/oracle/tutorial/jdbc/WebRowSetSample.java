@@ -31,36 +31,21 @@
 
 package com.oracle.tutorial.jdbc;
 
-import com.sun.rowset.CachedRowSetImpl;
-
 import com.sun.rowset.WebRowSetImpl;
 
+import javax.sql.rowset.WebRowSet;
 import java.io.FileReader;
-
 import java.io.FileWriter;
-
 import java.io.IOException;
-
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.sql.rowset.WebRowSet;
+public final class WebRowSetSample extends AbstractJdbcSample {
 
-public class WebRowSetSample {
-  
-  private String dbName;
-  private Connection con;
-  private String dbms;
-  private JDBCTutorialUtilities settings;
-  
   public WebRowSetSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = settingsArg.dbName;
-    this.dbms = settingsArg.dbms;
-    this.settings = settingsArg;
+    super(connArg, settingsArg);
   }
-  
+
   public void testWebRowSet() throws SQLException, IOException {
       FileReader fReader = null;
       FileWriter fWriter = null;

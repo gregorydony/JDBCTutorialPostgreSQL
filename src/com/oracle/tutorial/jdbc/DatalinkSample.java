@@ -49,22 +49,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class DatalinkSample {
-   
-  private String dbName;
-  private Connection con;
-  private String dbms;
-  private JDBCTutorialUtilities settings;
+public class DatalinkSample extends AbstractJdbcSample {
+
   private static String proxy = "http://www-proxy.us.oracle.com:80";
-  
+
   public DatalinkSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = settingsArg.dbName;
-    this.dbms = settingsArg.dbms;
-    this.settings = settingsArg;
+    super(connArg, settingsArg);
   }
-  
+
   public static void viewTable(Connection con, Proxy proxy) throws SQLException,
                                                       IOException {
     Statement stmt = null;

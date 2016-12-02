@@ -32,31 +32,14 @@
 package com.oracle.tutorial.jdbc;
 
 import java.math.BigDecimal;
+import java.sql.*;
 
-import java.math.BigInteger;
+public final class StoredProcedureJavaDBSample extends AbstractJdbcSample {
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
+  private static final String SCHEMA = "APP";
 
-public class StoredProcedureJavaDBSample {
-
-  private String dbName;
-  private Connection con;
-  private String dbms;
-  private String schema = "APP";
-
-  public StoredProcedureJavaDBSample(Connection connArg, String dbName,
-                                     String dbmsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = dbName;
-    this.dbms = dbmsArg;
+  public StoredProcedureJavaDBSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
+    super(connArg, settingsArg);
   }
 
   public static void raisePrice(String coffeeName, double maximumPercentage, BigDecimal[] newPrice) throws SQLException {
@@ -218,12 +201,12 @@ public class StoredProcedureJavaDBSample {
     CallableStatement cs3 = null;
 
     String query2 =
-      "CALL sqlj.install_jar('" + jarPathName + "','" + this.schema + ".JDBCTutorial',0)";
+      "CALL sqlj.install_jar('" + jarPathName + "','" + SCHEMA + ".JDBCTutorial',0)";
     String query2a =
-      "CALL sqlj.replace_jar('" + jarPathName + "','" + this.schema + ".JDBCTutorial')";
+      "CALL sqlj.replace_jar('" + jarPathName + "','" + SCHEMA + ".JDBCTutorial')";
     String query3 =
       "CALL syscs_util.syscs_set_database_property('derby.database.classpath','" +
-      this.schema + ".JDBCTutorial')";
+      SCHEMA + ".JDBCTutorial')";
 
     try {
       System.out.println("Calling " + query2);
@@ -329,8 +312,7 @@ public class StoredProcedureJavaDBSample {
       myConnection = myJDBCTutorialUtilities.getConnection();
       StoredProcedureJavaDBSample mySP =
         new StoredProcedureJavaDBSample(myConnection,
-                                        myJDBCTutorialUtilities.dbName,
-                                        myJDBCTutorialUtilities.dbms);
+                                        myJDBCTutorialUtilities);
       
 //      JDBCTutorialUtilities.initializeTables(myConnection,
 //                                             myJDBCTutorialUtilities.dbName,
