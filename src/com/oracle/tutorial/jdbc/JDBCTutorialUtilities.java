@@ -52,16 +52,22 @@ import static java.sql.RowIdLifetime.ROWID_UNSUPPORTED;
 public class JDBCTutorialUtilities {
 
     public String dbms;
-    public String jarFile;
+    public String driver;
     public String dbName;
     public String userName;
     public String password;
     public String urlString;
 
-    private String driver;
     private String serverName;
     private int portNumber;
     private Properties prop;
+
+    public JDBCTutorialUtilities(String dbms) throws IOException {
+        this.setProperties(JDBCDataSource.fromDbms(dbms));     }
+
+    public JDBCTutorialUtilities(JDBCDataSource jdbcDataSource) throws IOException {
+        this.setProperties(jdbcDataSource);     }
+
 
     public static void initializeTables(Connection con, String dbNameArg, String dbmsArg) throws SQLException {
         SuppliersTable mySuppliersTable =
@@ -136,13 +142,6 @@ public class JDBCTutorialUtilities {
                 dbMetaData.supportsResultSetHoldability(ResultSet.HOLD_CURSORS_OVER_COMMIT));
         System.out.println("Supports CLOSE_CURSORS_AT_COMMIT? " +
                 dbMetaData.supportsResultSetHoldability(ResultSet.CLOSE_CURSORS_AT_COMMIT));
-    }
-
-    public JDBCTutorialUtilities(String propertiesFileName) throws FileNotFoundException,
-            IOException,
-            InvalidPropertiesFormatException {
-        super();
-        this.setProperties(propertiesFileName);
     }
 
     public static void getWarningsFromResultSet(ResultSet rs) throws SQLException {
@@ -225,16 +224,15 @@ public class JDBCTutorialUtilities {
         }
     }
 
-    private void setProperties(String fileName) throws FileNotFoundException,
+    private void setProperties(JDBCDataSource jdbcDataSource) throws FileNotFoundException,
             IOException,
             InvalidPropertiesFormatException {
         this.prop = new Properties();
-        FileInputStream fis = new FileInputStream(fileName);
+        FileInputStream fis = new FileInputStream(jdbcDataSource.getPropertyFilePath());
         prop.loadFromXML(fis);
 
-        this.dbms = this.prop.getProperty("dbms");
-        this.jarFile = this.prop.getProperty("jar_file");
-        this.driver = this.prop.getProperty("driver");
+        this.dbms = jdbcDataSource.getDbms();
+        this.driver = jdbcDataSource.getJdbcDriver();
         this.dbName = this.prop.getProperty("database_name");
         this.userName = this.prop.getProperty("user_name");
         this.password = this.prop.getProperty("password");

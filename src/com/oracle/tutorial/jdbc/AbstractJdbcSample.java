@@ -3,7 +3,7 @@ package com.oracle.tutorial.jdbc;
 import java.sql.Connection;
 
 /**
- * Created by Elyse on 02/12/2016.
+ * Created by Gregory Dony on 02/12/2016.
  */
 public abstract class AbstractJdbcSample {
 
