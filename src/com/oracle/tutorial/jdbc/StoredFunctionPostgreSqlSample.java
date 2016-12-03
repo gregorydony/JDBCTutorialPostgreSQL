@@ -36,8 +36,9 @@ import java.sql.*;
 
 public final class StoredFunctionPostgreSqlSample extends AbstractJdbcSample {
 
-    public StoredFunctionPostgreSqlSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-        super(connArg, settingsArg);
+    public StoredFunctionPostgreSqlSample(Connection connArg,
+                                          JdbcDataSource jdbcDataSource) {
+        super(connArg, jdbcDataSource);
     }
 
     private void createFunction(final String functionDrop, final String functionCreate) throws SQLException {
@@ -216,27 +217,17 @@ public final class StoredFunctionPostgreSqlSample extends AbstractJdbcSample {
     }
 
     public static void main(String[] args) {
-        JDBCTutorialUtilities myJDBCTutorialUtilities;
+        JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
         Connection myConnection = null;
-        if (args[0] == null) {
-            System.err.println("Properties file not specified at command line");
-            return;
-        } else {
-            try {
-                myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-            } catch (Exception e) {
-                System.err.println("Problem reading properties file " + args[0]);
-                e.printStackTrace();
-                return;
-            }
-        }
+
 
         try {
-            myConnection = myJDBCTutorialUtilities.getConnectionToDatabase();
+            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false);
 
             StoredFunctionPostgreSqlSample myStoredProcedureSample =
                     new StoredFunctionPostgreSqlSample(myConnection,
-                            myJDBCTutorialUtilities);
+                            jdbcDataSource);
 
 //      JDBCTutorialUtilities.initializeTables(myConnection,
 //                                             myJDBCTutorialUtilities.dbName,

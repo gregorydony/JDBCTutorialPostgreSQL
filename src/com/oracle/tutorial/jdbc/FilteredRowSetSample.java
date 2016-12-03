@@ -42,8 +42,9 @@ import java.sql.Statement;
 
 public class FilteredRowSetSample extends AbstractJdbcSample {
 
-    public FilteredRowSetSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-        super(connArg, settingsArg);
+    public FilteredRowSetSample(Connection connArg,
+                                JdbcDataSource jdbcDataSource) {
+        super(connArg, jdbcDataSource);
     }
 
     private void viewFilteredRowSet(FilteredRowSet frs) throws SQLException {
@@ -102,9 +103,9 @@ public class FilteredRowSetSample extends AbstractJdbcSample {
             frs = new FilteredRowSetImpl();
 
             frs.setCommand("SELECT * FROM COFFEE_HOUSES");
-            frs.setUsername(settings.userName);
-            frs.setPassword(settings.password);
-            frs.setUrl(settings.urlString);
+            frs.setUsername(jdbcDataSource.getUserName());
+            frs.setPassword(jdbcDataSource.getPassword());
+            frs.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource,false));
             frs.execute();
 
             System.out.println("\nBefore filter:");
@@ -127,26 +128,14 @@ public class FilteredRowSetSample extends AbstractJdbcSample {
     }
 
     public static void main(String[] args) {
-        JDBCTutorialUtilities myJDBCTutorialUtilities;
+        JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
         Connection myConnection = null;
 
-        if (args[0] == null) {
-            System.err.println("Properties file not specified at command line");
-            return;
-        } else {
-            try {
-                myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-            } catch (Exception e) {
-                System.err.println("Problem reading properties file " + args[0]);
-                e.printStackTrace();
-                return;
-            }
-        }
-
         try {
-            myConnection = myJDBCTutorialUtilities.getConnection();
+            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
             FilteredRowSetSample myFilteredRowSetSample =
-                    new FilteredRowSetSample(myConnection, myJDBCTutorialUtilities);
+                    new FilteredRowSetSample(myConnection, jdbcDataSource);
             myFilteredRowSetSample.testFilteredRowSet();
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);

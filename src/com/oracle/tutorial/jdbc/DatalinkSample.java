@@ -32,6 +32,7 @@
 package com.oracle.tutorial.jdbc;
 
 // Java io imports
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -51,122 +52,125 @@ import java.sql.Statement;
 
 public class DatalinkSample extends AbstractJdbcSample {
 
-  private static String proxy = "http://www-proxy.us.oracle.com:80";
+    private static String proxy = "http://www-proxy.us.oracle.com:80";
 
-  public DatalinkSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super(connArg, settingsArg);
-  }
-
-  public static void viewTable(Connection con, Proxy proxy) throws SQLException,
-                                                      IOException {
-    Statement stmt = null;
-    String query = "SELECT document_name, url FROM data_repository";
-
-    try {
-      stmt = con.createStatement();      
-      ResultSet rs = stmt.executeQuery(query);
-      
-      if ( rs.next() )  {
-        String documentName = null;
-        java.net.URL url = null;
-        
-        documentName = rs.getString(1);
-
-        // Retrieve the value as a URL object.
-        url = rs.getURL(2);    
-            
-        if (url != null) {
-
-          // Retrieve the contents from the URL.
-          URLConnection myURLConnection = url.openConnection(proxy);
-          BufferedReader bReader =
-            new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
-          
-          System.out.println("Document name: " + documentName);
-          
-          String pageContent = null;
-          
-          while ((pageContent = bReader.readLine()) != null ) {
-            // Print the URL contents
-            System.out.println(pageContent);
-          }
-        } else { 
-          System.out.println("URL is null");
-        } 
-      }
-    } catch (SQLException e) {
-      JDBCTutorialUtilities.printSQLException(e);
-    } catch(IOException ioEx) {
-      System.out.println("IOException caught: " + ioEx.toString());
-    } catch (Exception ex) {
-      System.out.println("Unexpected exception");
-      ex.printStackTrace();
-    } finally {
-      if (stmt != null) { stmt.close(); }
+    public DatalinkSample(Connection connArg,
+                          JdbcDataSource jdbcDataSource) {
+        super(connArg, jdbcDataSource);
     }
-  }
-  
-  
-  public void addURLRow(String description, String url) throws SQLException {
-    
-    PreparedStatement pstmt = null;
-    
-    try {
-      pstmt = this.con.prepareStatement(
-        "INSERT INTO data_repository(document_name,url) VALUES (?,?)");
-      pstmt.setString(1, description);
-      pstmt.setURL(2,new URL(url));
-      pstmt.execute();    
-    } catch (SQLException sqlex) {
-      JDBCTutorialUtilities.printSQLException(sqlex);
-    } catch (Exception ex) {
-      System.out.println("Unexpected exception");
-      ex.printStackTrace();
-    } finally {
-      if (pstmt != null) { pstmt.close(); }
-    }
-  }
 
-  public static void main(String[] args)  {
-    
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
-    Connection myConnection = null;
-    Proxy myProxy;
-    InetSocketAddress myProxyServer;
+    public static void viewTable(Connection con, Proxy proxy) throws SQLException,
+            IOException {
+        Statement stmt = null;
+        String query = "SELECT document_name, url FROM data_repository";
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
-    
-    
+        try {
+            stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
 
-    try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
-      DatalinkSample myDatalinkSample =
-        new DatalinkSample(myConnection, myJDBCTutorialUtilities);
-       myDatalinkSample.addURLRow("Oracle", "http://www.oracle.com");
+            if (rs.next()) {
+                String documentName = null;
+                java.net.URL url = null;
 
-      // myProxyServer = new InetSocketAddress("www-proxy.example.com", 80);
-      // myProxy = new Proxy(Proxy.Type.HTTP, myProxyServer);
-      
-      DatalinkSample.viewTable(myConnection, Proxy.NO_PROXY);
-    } catch (SQLException e) {
-      JDBCTutorialUtilities.printSQLException(e);
-    } catch (Exception ex) {
-      System.out.println("Unexpected exception");
-      ex.printStackTrace();
+                documentName = rs.getString(1);
+
+                // Retrieve the value as a URL object.
+                url = rs.getURL(2);
+
+                if (url != null) {
+
+                    // Retrieve the contents from the URL.
+                    URLConnection myURLConnection = url.openConnection(proxy);
+                    BufferedReader bReader =
+                            new BufferedReader(new InputStreamReader(myURLConnection.getInputStream()));
+
+                    System.out.println("Document name: " + documentName);
+
+                    String pageContent = null;
+
+                    while ((pageContent = bReader.readLine()) != null) {
+                        // Print the URL contents
+                        System.out.println(pageContent);
+                    }
+                } else {
+                    System.out.println("URL is null");
+                }
+            }
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        } catch (IOException ioEx) {
+            System.out.println("IOException caught: " + ioEx.toString());
+        } catch (Exception ex) {
+            System.out.println("Unexpected exception");
+            ex.printStackTrace();
+        } finally {
+            if (stmt != null) {
+                stmt.close();
+            }
+        }
     }
-    finally {
-      JDBCTutorialUtilities.closeConnection(myConnection);
+
+
+    public void addURLRow(String description, String url) throws SQLException {
+
+        PreparedStatement pstmt = null;
+
+        try {
+            pstmt = this.con.prepareStatement(
+                    "INSERT INTO data_repository(document_name,url) VALUES (?,?)");
+            pstmt.setString(1, description);
+            pstmt.setURL(2, new URL(url));
+            pstmt.execute();
+        } catch (SQLException sqlex) {
+            JDBCTutorialUtilities.printSQLException(sqlex);
+        } catch (Exception ex) {
+            System.out.println("Unexpected exception");
+            ex.printStackTrace();
+        } finally {
+            if (pstmt != null) {
+                pstmt.close();
+            }
+        }
     }
-  }
+
+    public static void main(String[] args) {
+
+        JdbcDataSource jdbcDataSource;
+        Connection myConnection = null;
+        Proxy myProxy;
+        InetSocketAddress myProxyServer;
+
+        if (args[0] == null) {
+            System.err.println("Properties file not specified at command line");
+            return;
+        } else {
+            try {
+                jdbcDataSource = JdbcDataSource.fromDbms(args[0]);
+            } catch (Exception e) {
+                System.err.println("Problem reading properties file " + args[0]);
+                e.printStackTrace();
+                return;
+            }
+        }
+
+
+        try {
+            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false);
+            DatalinkSample myDatalinkSample =
+                    new DatalinkSample(myConnection, jdbcDataSource);
+            myDatalinkSample.addURLRow("Oracle", "http://www.oracle.com");
+
+            // myProxyServer = new InetSocketAddress("www-proxy.example.com", 80);
+            // myProxy = new Proxy(Proxy.Type.HTTP, myProxyServer);
+
+            DatalinkSample.viewTable(myConnection, Proxy.NO_PROXY);
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        } catch (Exception ex) {
+            System.out.println("Unexpected exception");
+            ex.printStackTrace();
+        } finally {
+            JDBCTutorialUtilities.closeConnection(myConnection);
+        }
+    }
 }

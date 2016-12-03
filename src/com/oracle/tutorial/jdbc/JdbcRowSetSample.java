@@ -42,8 +42,9 @@ import java.sql.Statement;
 
 public final class JdbcRowSetSample extends AbstractJdbcSample {
 
-  public JdbcRowSetSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super(connArg, settingsArg);
+  public JdbcRowSetSample(Connection connArg,
+                          JdbcDataSource jdbcDataSource) {
+    super(connArg, jdbcDataSource);
   }
 
   public void testJdbcRowSet() throws SQLException {
@@ -131,27 +132,16 @@ public final class JdbcRowSetSample extends AbstractJdbcSample {
   }
 
   public static void main(String[] args) {
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
 
     try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
+      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false);
 
       JdbcRowSetSample myJdbcRowSetSample =
-        new JdbcRowSetSample(myConnection, myJDBCTutorialUtilities);
+        new JdbcRowSetSample(myConnection, jdbcDataSource);
       myJdbcRowSetSample.testJdbcRowSet();
 
 

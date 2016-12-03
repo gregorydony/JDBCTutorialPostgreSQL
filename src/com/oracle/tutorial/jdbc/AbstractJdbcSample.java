@@ -1,5 +1,8 @@
 package com.oracle.tutorial.jdbc;
 
+
+import com.sun.istack.internal.Nullable;
+
 import java.sql.Connection;
 
 /**
@@ -7,17 +10,21 @@ import java.sql.Connection;
  */
 public abstract class AbstractJdbcSample {
 
-    protected final String dbName;
     protected final Connection con;
-    protected final String dbms;
-    protected final JDBCTutorialUtilities settings;
+    protected final JdbcDataSource jdbcDataSource;
 
 
     public AbstractJdbcSample(Connection connArg,
-                              JDBCTutorialUtilities settingsArg) {
+                              JdbcDataSource jdbcDataSource) {
         this.con = connArg;
-        this.dbName = settingsArg.dbName;
-        this.dbms = settingsArg.dbms;
-        this.settings = settingsArg;
+        this.jdbcDataSource = jdbcDataSource;
+    }
+
+
+    protected static JdbcDataSource getJdbcDataSource(@Nullable String arg) {
+        if (arg == null) {
+            throw new IllegalArgumentException("Properties file not specified at command line");
+        }
+        return JdbcDataSource.fromDbms(arg);
     }
 }

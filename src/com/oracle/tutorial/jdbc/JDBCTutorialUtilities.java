@@ -39,35 +39,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.sql.*;
-import java.util.InvalidPropertiesFormatException;
 import java.util.Properties;
 
 import static java.sql.RowIdLifetime.ROWID_UNSUPPORTED;
 
-public class JDBCTutorialUtilities {
-
-    public String dbms;
-    public String driver;
-    public String dbName;
-    public String userName;
-    public String password;
-    public String urlString;
-
-    private String serverName;
-    private int portNumber;
-    private Properties prop;
-
-    public JDBCTutorialUtilities(String dbms) throws IOException {
-        this.setProperties(JDBCDataSource.fromDbms(dbms));     }
-
-    public JDBCTutorialUtilities(JDBCDataSource jdbcDataSource) throws IOException {
-        this.setProperties(jdbcDataSource);     }
-
+public final class JDBCTutorialUtilities {
 
     public static void initializeTables(Connection con, String dbNameArg, String dbmsArg) throws SQLException {
         SuppliersTable mySuppliersTable =
@@ -210,137 +188,56 @@ public class JDBCTutorialUtilities {
         }
     }
 
-    public static void alternatePrintSQLException(SQLException ex) {
-        while (ex != null) {
-            System.err.println("SQLState: " + ex.getSQLState());
-            System.err.println("Error Code: " + ex.getErrorCode());
-            System.err.println("Message: " + ex.getMessage());
-            Throwable t = ex.getCause();
-            while (t != null) {
-                System.out.println("Cause: " + t);
-                t = t.getCause();
-            }
-            ex = ex.getNextException();
-        }
-    }
-
-    private void setProperties(JDBCDataSource jdbcDataSource) throws FileNotFoundException,
-            IOException,
-            InvalidPropertiesFormatException {
-        this.prop = new Properties();
-        FileInputStream fis = new FileInputStream(jdbcDataSource.getPropertyFilePath());
-        prop.loadFromXML(fis);
-
-        this.dbms = jdbcDataSource.getDbms();
-        this.driver = jdbcDataSource.getJdbcDriver();
-        this.dbName = this.prop.getProperty("database_name");
-        this.userName = this.prop.getProperty("user_name");
-        this.password = this.prop.getProperty("password");
-        this.serverName = this.prop.getProperty("server_name");
-        this.portNumber = Integer.parseInt(this.prop.getProperty("port_number"));
-
-        System.out.println("Set the following properties:");
-        System.out.println("dbms: " + dbms);
-        System.out.println("driver: " + driver);
-        System.out.println("dbName: " + dbName);
-        System.out.println("userName: " + userName);
-        System.out.println("serverName: " + serverName);
-        System.out.println("portNumber: " + portNumber);
-
-    }
-
-    public Connection getConnectionToDatabase() throws SQLException {
+    public static Connection getConnectionToDatabase(JdbcDataSource jdbcDataSource, boolean createIfAbsent) throws SQLException {
         {
             Connection conn = null;
             Properties connectionProps = new Properties();
-            connectionProps.put("user", this.userName);
-            connectionProps.put("password", this.password);
+            connectionProps.put("user", jdbcDataSource.getUserName());
+            connectionProps.put("password", jdbcDataSource.getPassword());
 
-            // Using a driver manager:
-            if (this.dbms.equals("postgresql")) {
-                DriverManager.registerDriver(new org.postgresql.Driver());
-                //jdbc:postgresql://192.168.99.100:5432/postgres
-                conn =
-                        DriverManager.getConnection("jdbc:" + dbms + "://" + serverName +
-                                        ":" + portNumber + "/" + dbName,
-                                connectionProps);
-                conn.setCatalog(this.dbName);
-            } else if (this.dbms.equals("mysql")) {
-//        DriverManager.registerDriver(new com.mysql.jdbc.Driver());
-                conn =
-                        DriverManager.getConnection("jdbc:" + dbms + "://" + serverName +
-                                        ":" + portNumber + "/" + dbName,
-                                connectionProps);
-                conn.setCatalog(this.dbName);
-            } else if (this.dbms.equals("derby")) {
-//        DriverManager.registerDriver(new org.apache.derby.jdbc.EmbeddedDriver());
-                conn =
-                        DriverManager.getConnection("jdbc:" + dbms + ":" + dbName, connectionProps);
+            final String serverName = jdbcDataSource.getServerName();
+            final String dbName = jdbcDataSource.getDbName();
+            switch (jdbcDataSource) {
+                case POSTGRESQL:
+                    DriverManager.registerDriver(new org.postgresql.Driver());
+                    //jdbc:postgresql://192.168.99.100:5432/postgres
+                    conn =
+                            DriverManager.getConnection(getConnectionUrl(jdbcDataSource,createIfAbsent),
+                                    connectionProps);
+                    conn.setCatalog(dbName);
+                    break;
+                case MYSQL:
+                    //DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+                    conn =
+                            DriverManager.getConnection(getConnectionUrl(jdbcDataSource,createIfAbsent),
+                                    connectionProps);
+                    conn.setCatalog(dbName);
+                    break;
+                case DB2:
+                    //DriverManager.registerDriver(new org.apache.derby.jdbc.EmbeddedDriver());
+                    conn =
+                            DriverManager.getConnection(getConnectionUrl(jdbcDataSource,createIfAbsent), connectionProps);
+                    break;
             }
             System.out.println("Connected to database");
             return conn;
         }
     }
 
-    public Connection getConnection() throws SQLException {
-        Connection conn = null;
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", this.userName);
-        connectionProps.put("password", this.password);
-
-        String currentUrlString = null;
-
-        // Using a driver manager:
-        if (this.dbms.equals("postgresql")) {
-            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName +
-                    ":" + this.portNumber + "/";
-            //jdbc:postgresql://192.168.99.100:5432/postgres
-            conn =
-                    DriverManager.getConnection(currentUrlString,
-                            connectionProps);
-            this.urlString = currentUrlString + this.dbName;
-            conn.setCatalog(this.dbName);
-        } else if (this.dbms.equals("mysql")) {
-            currentUrlString = "jdbc:" + this.dbms + "://" + this.serverName +
-                    ":" + this.portNumber + "/";
-            conn =
-                    DriverManager.getConnection(currentUrlString,
-                            connectionProps);
-
-            this.urlString = currentUrlString + this.dbName;
-            conn.setCatalog(this.dbName);
-        } else if (this.dbms.equals("derby")) {
-            this.urlString = "jdbc:" + this.dbms + ":" + this.dbName;
-
-            conn =
-                    DriverManager.getConnection(this.urlString +
-                            ";create=true", connectionProps);
+    public static String getConnectionUrl(JdbcDataSource jdbcDataSource, boolean createIfAbsent) {
+        final String dbms = jdbcDataSource.getDbms();
+        final String serverName = jdbcDataSource.getServerName();
+        final int portNumber = jdbcDataSource.getPortNumber();
+        final String dbName = jdbcDataSource.getDbName();
+        switch (jdbcDataSource) {
+            case DB2:
+                return "jdbc:" + dbms + ":" + dbName + (createIfAbsent ? ";create=true" : "");
+            default :
+                return "jdbc:" + dbms + "://" + serverName +
+                        ":" + portNumber + "/" + dbName;
 
         }
-        System.out.println("Connected to database");
-        return conn;
     }
-
-    public Connection getConnection(String userName,
-                                    String password) throws SQLException {
-        Connection conn = null;
-        Properties connectionProps = new Properties();
-        connectionProps.put("user", userName);
-        connectionProps.put("password", password);
-        if (this.dbms.equals("mysql")) {
-            conn =
-                    DriverManager.getConnection("jdbc:" + this.dbms + "://" + this.serverName +
-                                    ":" + this.portNumber + "/",
-                            connectionProps);
-            conn.setCatalog(this.dbName);
-        } else if (this.dbms.equals("derby")) {
-            conn =
-                    DriverManager.getConnection("jdbc:" + this.dbms + ":" + this.dbName +
-                            ";create=true", connectionProps);
-        }
-        return conn;
-    }
-
 
     public static void createDatabase(Connection connArg, String dbNameArg,
                                       String dbmsArg) {
@@ -384,7 +281,7 @@ public class JDBCTutorialUtilities {
     }
 
     public static void main(String[] args) {
-        JDBCTutorialUtilities myJDBCTutorialUtilities;
+        JdbcDataSource jdbcDataSource;
         Connection myConnection = null;
         if (args[0] == null) {
             System.err.println("Properties file not specified at command line");
@@ -392,7 +289,7 @@ public class JDBCTutorialUtilities {
         } else {
             try {
                 System.out.println("Reading properties file " + args[0]);
-                myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
+                jdbcDataSource = JdbcDataSource.fromDbms(args[0]);
             } catch (Exception e) {
                 System.err.println("Problem reading properties file " + args[0]);
                 e.printStackTrace();
@@ -401,26 +298,26 @@ public class JDBCTutorialUtilities {
         }
 
         try {
-            myConnection = myJDBCTutorialUtilities.getConnection();
+            myConnection = getConnectionToDatabase(jdbcDataSource, true);
             //      JDBCTutorialUtilities.outputClientInfoProperties(myConnection);
             // myConnection = myJDBCTutorialUtilities.getConnection("root", "root", "jdbc:mysql://localhost:3306/");
             //       myConnection = myJDBCTutorialUtilities.
             //         getConnectionWithDataSource(myJDBCTutorialUtilities.dbName,"derby","", "", "localhost", 3306);
 
             // Java DB does not have an SQL create database command; it does require createDatabase
-            JDBCTutorialUtilities.createDatabase(myConnection,
-                    myJDBCTutorialUtilities.dbName,
-                    myJDBCTutorialUtilities.dbms);
+            createDatabase(myConnection,
+                    jdbcDataSource.getDbName(),
+                    jdbcDataSource.getDbms());
 
-            JDBCTutorialUtilities.cursorHoldabilitySupport(myConnection);
-            JDBCTutorialUtilities.rowIdLifetime(myConnection);
+            cursorHoldabilitySupport(myConnection);
+            rowIdLifetime(myConnection);
 
         } catch (SQLException e) {
-            JDBCTutorialUtilities.printSQLException(e);
+            printSQLException(e);
         } catch (Exception e) {
             e.printStackTrace(System.err);
         } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
+            closeConnection(myConnection);
         }
 
     }
