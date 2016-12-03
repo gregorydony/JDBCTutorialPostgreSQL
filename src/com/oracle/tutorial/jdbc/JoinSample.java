@@ -43,8 +43,9 @@ import java.sql.Statement;
 
 public final class JoinSample extends AbstractJdbcSample {
 
-  public JoinSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super(connArg, settingsArg);
+  public JoinSample(Connection connArg,
+                         JdbcDataSource jdbcDataSource) {
+    super(connArg, jdbcDataSource);
   }
 
   public static void getCoffeesBoughtBySupplier(String supplierName,
@@ -70,7 +71,11 @@ public final class JoinSample extends AbstractJdbcSample {
   }
   
   public void testJoinRowSet(String supplierName) throws SQLException {
-    
+
+    final String userName = jdbcDataSource.getUserName();
+    final String password = jdbcDataSource.getPassword();
+    final String connectionUrl = JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource, false);
+
     CachedRowSet coffees = null;
     CachedRowSet suppliers = null;
     JoinRowSet jrs = null;
@@ -78,16 +83,16 @@ public final class JoinSample extends AbstractJdbcSample {
     try {
       coffees = new CachedRowSetImpl();
       coffees.setCommand("SELECT * FROM COFFEES");
-      coffees.setUsername(settings.userName);
-      coffees.setPassword(settings.password);
-      coffees.setUrl(settings.urlString);
+      coffees.setUsername(userName);
+      coffees.setPassword(password);
+      coffees.setUrl(connectionUrl);
       coffees.execute();
       
       suppliers = new CachedRowSetImpl();
       suppliers.setCommand("SELECT * FROM SUPPLIERS");
-      suppliers.setUsername(settings.userName);
-      suppliers.setPassword(settings.password);
-      suppliers.setUrl(settings.urlString);
+      suppliers.setUsername(userName);
+      suppliers.setPassword(password);
+      suppliers.setUrl(connectionUrl);
       suppliers.execute();      
       
       jrs = new JoinRowSetImpl();
@@ -113,29 +118,18 @@ public final class JoinSample extends AbstractJdbcSample {
 
 
   public static void main(String[] args) {
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
 
     try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
+      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
 
       System.out.println("\nCoffees bought by each supplier:");
       JoinSample.getCoffeesBoughtBySupplier("Acme, Inc.", myConnection);
 
       System.out.println("\nUsing JoinRowSet:");
-      JoinSample myJoinSample = new JoinSample(myConnection, myJDBCTutorialUtilities);
+      JoinSample myJoinSample = new JoinSample(myConnection, jdbcDataSource);
       myJoinSample.testJoinRowSet("Acme, Inc.");
 
     } catch (SQLException e) {

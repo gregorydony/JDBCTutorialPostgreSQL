@@ -31,45 +31,31 @@
 
 package com.oracle.tutorial.jdbc;
 
-import java.io.IOException;
-
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
-
 import org.w3c.dom.Document;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public class ProductInformationTable {
+
+  private Connection con;
+  private JdbcDataSource jdbcDataSource;
+
   
-  private String dbName;
-  private Connection con;  
-  private String dbms;  
-  
-  public ProductInformationTable(Connection connArg, String dbNameArg, String dbmsArg) {
-    super();
+  public ProductInformationTable(Connection connArg, JdbcDataSource jdbcDataSource) {
     this.con = connArg;
-    this.dbName = dbNameArg;
-    this.dbms = dbmsArg;
+    this.jdbcDataSource = jdbcDataSource;
 
   }
   
@@ -153,9 +139,9 @@ public class ProductInformationTable {
     Statement stmt = null;
     try {
       stmt = con.createStatement();
-      if (this.dbms.equals("mysql")) {
+      if (JdbcDataSource.MYSQL == jdbcDataSource) {
         stmt.executeUpdate("DROP TABLE IF EXISTS PRODUCT_INFORMATION");
-      } else if (this.dbms.equals("derby")) {
+      } else if (JdbcDataSource.DB2 == jdbcDataSource) {
         stmt.executeUpdate("DROP TABLE PRODUCT_INFORMATION");
       }
     } catch (SQLException e) {
@@ -167,22 +153,10 @@ public class ProductInformationTable {
   
   public static void main(String[] args) {
 
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = AbstractJdbcSample.getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
-    
     try {
 //      myConnection = myJDBCTutorialUtilities.getConnection();
 
@@ -199,8 +173,7 @@ public class ProductInformationTable {
       
 
       ProductInformationTable myProductInformationTable =
-        new ProductInformationTable(myConnection, myJDBCTutorialUtilities.dbName,
-                         myJDBCTutorialUtilities.dbms);
+        new ProductInformationTable(myConnection, jdbcDataSource);
       
       myProductInformationTable.populateTable("xml/coffee-information.xml");
 

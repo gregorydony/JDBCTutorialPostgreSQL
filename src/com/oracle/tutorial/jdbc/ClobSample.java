@@ -36,8 +36,9 @@ import java.sql.*;
 
 public final class ClobSample extends AbstractJdbcSample {
 
-  public ClobSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super(connArg, settingsArg);
+  public ClobSample(Connection connArg,
+                    JdbcDataSource jdbcDataSource) {
+    super(connArg, jdbcDataSource);
   }
 
   public String retrieveExcerpt(String coffeeName,
@@ -76,7 +77,7 @@ public final class ClobSample extends AbstractJdbcSample {
       Writer clobWriter = myClob.setCharacterStream(1);
       String str = this.readFile(fileName, clobWriter);
       System.out.println("Wrote the following: " + clobWriter.toString());
-      if (this.settings.dbms.equals("mysql")) {
+      if (JdbcDataSource.MYSQL == jdbcDataSource) {
         System.out.println("MySQL, setting String in Clob object with setString method");
         myClob.setString(1, str);
       }
@@ -116,27 +117,14 @@ public final class ClobSample extends AbstractJdbcSample {
 
   public static void main(String[] args) {
 
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
-
     try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
-
+      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
       ClobSample myClobSample =
-        new ClobSample(myConnection, myJDBCTutorialUtilities);
+        new ClobSample(myConnection, jdbcDataSource);
       myClobSample.addRowToCoffeeDescriptions("Colombian",
                                               "txt/colombian-description.txt");
       String description = myClobSample.retrieveExcerpt("Colombian", 10);

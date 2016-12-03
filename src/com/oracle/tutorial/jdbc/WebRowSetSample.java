@@ -42,110 +42,107 @@ import java.sql.SQLException;
 
 public final class WebRowSetSample extends AbstractJdbcSample {
 
-  public WebRowSetSample(Connection connArg,
-                         JdbcDataSource jdbcDataSource) {
-    super(connArg, jdbcDataSource);
-  }
-
-  public void testWebRowSet() throws SQLException, IOException {
-      FileReader fReader = null;
-      FileWriter fWriter = null;
-      String priceListFileName = "pricelist.xml";
-    int [] keyCols = {1};
-    WebRowSet priceList = new WebRowSetImpl();
-    
-    priceList.setUsername(jdbcDataSource.getUserName());
-    priceList.setPassword(jdbcDataSource.getPassword());
-    priceList.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource,false));
-    priceList.setCommand("select COF_NAME, PRICE from COFFEES");
-    priceList.setKeyColumns(keyCols);
-
-    // Populate the WebRowSet
-    priceList.execute();
-    System.out.println("Size of the WebRowSet is: " + priceList.size());
-   
-    // Insert a new row
-    priceList.moveToInsertRow();
-    priceList.updateString("COF_NAME", "Kona");
-    priceList.updateFloat("PRICE", 8.99f);
-    priceList.insertRow();
-    priceList.moveToCurrentRow();
-    System.out.println("New row inserted");
-    System.out.println("Size of the WebRowSet is: "+priceList.size());
-    
-    //Delete the row with "Espresso"
-    priceList.beforeFirst();
-    while(priceList.next()) {
-      if(priceList.getString(1).equals( "Espresso" )) {
-        System.out.println( "Deleting row with Espresso..." );
-        priceList.deleteRow();
-        break;
-      }
-    }
-    
-    // Update price of Colombian
-    priceList.beforeFirst();
-    while(priceList.next()) {
-      if(priceList.getString(1).equals("Colombian")) {
-        System.out.println("Updating row with Colombian...");
-        priceList.updateFloat(2, 6.99f);
-        priceList.updateRow();
-        break;
-      }
-    }
-    
-    int size1 = priceList.size();
-    fWriter = new FileWriter( priceListFileName );
-    priceList.writeXml(fWriter);
-    fWriter.flush();
-    fWriter.close();
-    
-    // Create the receiving WebRowSet object
-    WebRowSet receiver = new WebRowSetImpl();
-    receiver.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource,false));
-    receiver.setUsername(jdbcDataSource.getUserName());
-    receiver.setPassword(jdbcDataSource.getPassword());
-    
-    //Now read the XML file.
-    fReader = new FileReader( priceListFileName );
-    receiver.readXml(fReader);
-    int size2 = receiver.size();
-    if (size1 == size2) {
-      System.out.println( "WebRowSet serialized and " +
-      "deserialiazed properly" );
-    } else {
-      System.out.println("Error....serializing/deserializng the WebRowSet");
-    }
-    }
-  
-  public static void main(String[] args) {
-    JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
-
-    Connection myConnection = null;
-
-    try {
-      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true);
-
-      // Java DB does not have an SQL create database command; it does require createDatabase
-      
-      
-      WebRowSetSample myWebRowSetSample = new WebRowSetSample(myConnection,
-              jdbcDataSource);
-      myWebRowSetSample.testWebRowSet();   
-
-    } catch (SQLException e) {
-      JDBCTutorialUtilities.printSQLException(e);
-    } catch (Exception ex) {
-      System.out.println("Unexpected exception");
-      ex.printStackTrace();
-    }
-    
-    finally {
-      JDBCTutorialUtilities.closeConnection(myConnection);
+    public WebRowSetSample(Connection connArg,
+                           JdbcDataSource jdbcDataSource) {
+        super(connArg, jdbcDataSource);
     }
 
-  }  
+    public void testWebRowSet() throws SQLException, IOException {
+        FileReader fReader = null;
+        FileWriter fWriter = null;
+        String priceListFileName = "pricelist.xml";
+        int[] keyCols = {1};
+        WebRowSet priceList = new WebRowSetImpl();
 
-  
-  
+        priceList.setUsername(jdbcDataSource.getUserName());
+        priceList.setPassword(jdbcDataSource.getPassword());
+        priceList.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource, false));
+        priceList.setCommand("select COF_NAME, PRICE from COFFEES");
+        priceList.setKeyColumns(keyCols);
+
+        // Populate the WebRowSet
+        priceList.execute();
+        System.out.println("Size of the WebRowSet is: " + priceList.size());
+
+        // Insert a new row
+        priceList.moveToInsertRow();
+        priceList.updateString("COF_NAME", "Kona");
+        priceList.updateFloat("PRICE", 8.99f);
+        priceList.insertRow();
+        priceList.moveToCurrentRow();
+        System.out.println("New row inserted");
+        System.out.println("Size of the WebRowSet is: " + priceList.size());
+
+        //Delete the row with "Espresso"
+        priceList.beforeFirst();
+        while (priceList.next()) {
+            if (priceList.getString(1).equals("Espresso")) {
+                System.out.println("Deleting row with Espresso...");
+                priceList.deleteRow();
+                break;
+            }
+        }
+
+        // Update price of Colombian
+        priceList.beforeFirst();
+        while (priceList.next()) {
+            if (priceList.getString(1).equals("Colombian")) {
+                System.out.println("Updating row with Colombian...");
+                priceList.updateFloat(2, 6.99f);
+                priceList.updateRow();
+                break;
+            }
+        }
+
+        int size1 = priceList.size();
+        fWriter = new FileWriter(priceListFileName);
+        priceList.writeXml(fWriter);
+        fWriter.flush();
+        fWriter.close();
+
+        // Create the receiving WebRowSet object
+        WebRowSet receiver = new WebRowSetImpl();
+        receiver.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource, false));
+        receiver.setUsername(jdbcDataSource.getUserName());
+        receiver.setPassword(jdbcDataSource.getPassword());
+
+        //Now read the XML file.
+        fReader = new FileReader(priceListFileName);
+        receiver.readXml(fReader);
+        int size2 = receiver.size();
+        if (size1 == size2) {
+            System.out.println("WebRowSet serialized and " +
+                    "deserialiazed properly");
+        } else {
+            System.out.println("Error....serializing/deserializng the WebRowSet");
+        }
+    }
+
+    public static void main(String[] args) {
+        JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
+        Connection myConnection = null;
+
+        try {
+            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
+
+            // Java DB does not have an SQL create database command; it does require createDatabase
+
+
+            WebRowSetSample myWebRowSetSample = new WebRowSetSample(myConnection,
+                    jdbcDataSource);
+            myWebRowSetSample.testWebRowSet();
+
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        } catch (Exception ex) {
+            System.out.println("Unexpected exception");
+            ex.printStackTrace();
+        } finally {
+            JDBCTutorialUtilities.closeConnection(myConnection);
+        }
+
+    }
+
+
 }

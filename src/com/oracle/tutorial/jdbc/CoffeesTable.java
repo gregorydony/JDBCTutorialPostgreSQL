@@ -31,15 +31,7 @@
 
 package com.oracle.tutorial.jdbc;
 
-import java.sql.BatchUpdateException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Savepoint;
-import java.sql.Statement;
-
+import java.sql.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -356,24 +348,12 @@ public class CoffeesTable {
   }
 
   public static void main(String[] args) {
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = AbstractJdbcSample.getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
-
     try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
+      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
 
       // Java DB does not have an SQL create database command; it does require createDatabase
 //      JDBCTutorialUtilities.createDatabase(myConnection,
@@ -385,8 +365,8 @@ public class CoffeesTable {
 //                                             myJDBCTutorialUtilities.dbms);
 
       CoffeesTable myCoffeeTable =
-        new CoffeesTable(myConnection, myJDBCTutorialUtilities.dbName,
-                         myJDBCTutorialUtilities.dbms);
+        new CoffeesTable(myConnection, jdbcDataSource.getDbName(),
+                jdbcDataSource.getDbms());
 
       System.out.println("\nContents of COFFEES table:");
       CoffeesTable.viewTable(myConnection);

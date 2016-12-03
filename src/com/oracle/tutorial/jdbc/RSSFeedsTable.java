@@ -31,16 +31,10 @@
 
 package com.oracle.tutorial.jdbc;
 
-import java.io.IOException;
-
-import java.io.StringReader;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.SQLXML;
-import java.sql.Statement;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,25 +45,20 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
+import java.io.IOException;
+import java.io.StringReader;
+import java.sql.*;
 
 public class RSSFeedsTable {
 
-  private String dbName;
   private Connection con;
-  private String dbms;
+  private JdbcDataSource jdbcDataSource;
 
 
-  public RSSFeedsTable(Connection connArg, String dbNameArg, String dbmsArg) {
+  public RSSFeedsTable(Connection connArg, JdbcDataSource jdbcDataSource) {
     super();
     this.con = connArg;
-    this.dbName = dbNameArg;
-    this.dbms = dbmsArg;
+    this.jdbcDataSource = jdbcDataSource;
   }
 
   public void createTable() throws SQLException {
@@ -260,28 +249,15 @@ public class RSSFeedsTable {
 
   public static void main(String[] args) {
 
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = AbstractJdbcSample.getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
-
     try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
+      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
 
       RSSFeedsTable myRSSFeedsTable =
-        new RSSFeedsTable(myConnection, myJDBCTutorialUtilities.dbName,
-                          myJDBCTutorialUtilities.dbms);
+        new RSSFeedsTable(myConnection, jdbcDataSource);
 
       myRSSFeedsTable.addRSSFeed("xml/rss-coffee-industry-news.xml");
       myRSSFeedsTable.addRSSFeed("xml/rss-the-coffee-break-blog.xml");

@@ -32,20 +32,25 @@
 package com.oracle.tutorial.jdbc;
 
 import com.sun.rowset.CachedRowSetImpl;
+
 import javax.sql.RowSetEvent;
+import javax.sql.RowSetListener;
+import javax.sql.rowset.CachedRowSet;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.sql.RowSetListener;
-import javax.sql.rowset.CachedRowSet;
 
 public class CoffeesFrame extends JFrame implements RowSetListener {
 
-  JDBCTutorialUtilities settings;
-  Connection connection;
+  private final Connection connection;
+  private final JdbcDataSource jdbcDataSource;
+
   JTable table; // The table for displaying data
 
   JLabel label_COF_NAME;
@@ -66,13 +71,13 @@ public class CoffeesFrame extends JFrame implements RowSetListener {
 
   CoffeesTableModel myCoffeesTableModel;
 
-  public CoffeesFrame(JDBCTutorialUtilities settingsArg) throws SQLException {
+  public CoffeesFrame(JdbcDataSource jdbcDataSource) throws SQLException {
 
 
     super("The Coffee Break: COFFEES Table"); // Set window title
 
-    this.settings = settingsArg;
-    connection = settings.getConnection();
+    this.jdbcDataSource = jdbcDataSource;
+    connection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true);
 
     // Close connections exit the application when the user
     // closes the window
@@ -340,21 +345,12 @@ public class CoffeesFrame extends JFrame implements RowSetListener {
   }
 
   public static void main(String[] args) throws Exception {
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
+    JdbcDataSource jdbcDataSource = AbstractJdbcSample.getJdbcDataSource(args[0]);
+
+    Connection myConnection = null;
+
     try {
-      CoffeesFrame qf = new CoffeesFrame(myJDBCTutorialUtilities);
+      CoffeesFrame qf = new CoffeesFrame(jdbcDataSource);
       qf.pack();
       qf.setVisible(true);
     } catch (SQLException sqle) {
@@ -369,20 +365,19 @@ public class CoffeesFrame extends JFrame implements RowSetListener {
   public CachedRowSet getContentsOfCoffeesTable() throws SQLException {
     CachedRowSet crs = null;
     try {
-      connection = settings.getConnection();
       crs = new CachedRowSetImpl();
       crs.setType(ResultSet.TYPE_SCROLL_INSENSITIVE);
       crs.setConcurrency(ResultSet.CONCUR_UPDATABLE);
-      crs.setUsername(settings.userName);
-      crs.setPassword(settings.password);
+      crs.setUsername(jdbcDataSource.getUserName());
+      crs.setPassword(jdbcDataSource.getPassword());
 
       // In MySQL, to disable auto-commit, set the property relaxAutoCommit to
       // true in the connection URL.
 
-      if (this.settings.dbms.equals("mysql")) {
-        crs.setUrl(settings.urlString + "?relaxAutoCommit=true");
+      if (JdbcDataSource.MYSQL == jdbcDataSource) {
+        crs.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource, false) + "?relaxAutoCommit=true");
       } else {
-        crs.setUrl(settings.urlString);
+        crs.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource, false));
       }
 
       // Regardless of the query, fetch the contents of COFFEES

@@ -47,15 +47,15 @@ import static java.sql.RowIdLifetime.ROWID_UNSUPPORTED;
 
 public final class JDBCTutorialUtilities {
 
-    public static void initializeTables(Connection con, String dbNameArg, String dbmsArg) throws SQLException {
+    public static void initializeTables(Connection con, JdbcDataSource jdbcDataSource) throws SQLException {
         SuppliersTable mySuppliersTable =
-                new SuppliersTable(con, dbNameArg, dbmsArg);
+                new SuppliersTable(con, jdbcDataSource);
         CoffeesTable myCoffeeTable =
-                new CoffeesTable(con, dbNameArg, dbmsArg);
+                new CoffeesTable(con, jdbcDataSource);
         RSSFeedsTable myRSSFeedsTable =
-                new RSSFeedsTable(con, dbNameArg, dbmsArg);
+                new RSSFeedsTable(con, jdbcDataSource);
         ProductInformationTable myPIT =
-                new ProductInformationTable(con, dbNameArg, dbmsArg);
+                new ProductInformationTable(con, jdbcDataSource);
 
         System.out.println("\nDropping exisiting PRODUCT_INFORMATION, COFFEES and SUPPLIERS tables");
         myPIT.dropTable();
