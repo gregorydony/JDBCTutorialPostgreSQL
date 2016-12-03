@@ -42,8 +42,9 @@ import java.sql.SQLException;
 
 public final class WebRowSetSample extends AbstractJdbcSample {
 
-  public WebRowSetSample(Connection connArg, JDBCTutorialUtilities settingsArg) {
-    super(connArg, settingsArg);
+  public WebRowSetSample(Connection connArg,
+                         JdbcDataSource jdbcDataSource) {
+    super(connArg, jdbcDataSource);
   }
 
   public void testWebRowSet() throws SQLException, IOException {
@@ -53,9 +54,9 @@ public final class WebRowSetSample extends AbstractJdbcSample {
     int [] keyCols = {1};
     WebRowSet priceList = new WebRowSetImpl();
     
-    priceList.setUsername(settings.userName);
-    priceList.setPassword(settings.password);
-    priceList.setUrl(settings.urlString);
+    priceList.setUsername(jdbcDataSource.getUserName());
+    priceList.setPassword(jdbcDataSource.getPassword());
+    priceList.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource,false));
     priceList.setCommand("select COF_NAME, PRICE from COFFEES");
     priceList.setKeyColumns(keyCols);
 
@@ -101,9 +102,9 @@ public final class WebRowSetSample extends AbstractJdbcSample {
     
     // Create the receiving WebRowSet object
     WebRowSet receiver = new WebRowSetImpl();
-    receiver.setUrl(settings.urlString);
-    receiver.setUsername(settings.userName);
-    receiver.setPassword(settings.password);
+    receiver.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource,false));
+    receiver.setUsername(jdbcDataSource.getUserName());
+    receiver.setPassword(jdbcDataSource.getPassword());
     
     //Now read the XML file.
     fReader = new FileReader( priceListFileName );
@@ -118,30 +119,18 @@ public final class WebRowSetSample extends AbstractJdbcSample {
     }
   
   public static void main(String[] args) {
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
-
     try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
+      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true);
 
       // Java DB does not have an SQL create database command; it does require createDatabase
       
       
       WebRowSetSample myWebRowSetSample = new WebRowSetSample(myConnection,
-                                           myJDBCTutorialUtilities);
+              jdbcDataSource);
       myWebRowSetSample.testWebRowSet();   
 
     } catch (SQLException e) {

@@ -32,23 +32,15 @@
 package com.oracle.tutorial.jdbc;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SuppliersTable {
+public class SuppliersTable extends AbstractJdbcSample {
 
-  private String dbName;
-  private Connection con;
-  private String dbms;
-
-  public SuppliersTable(Connection connArg, String dbNameArg, String dbmsArg) {
-    super();
-    this.con = connArg;
-    this.dbName = dbNameArg;
-    this.dbms = dbmsArg;
+  public SuppliersTable(Connection connArg,
+                         JdbcDataSource jdbcDataSource) {
+    super(connArg, jdbcDataSource);
   }
 
   public void createTable() throws SQLException {
@@ -72,10 +64,10 @@ public class SuppliersTable {
     Statement stmt = null;
     try {
       stmt = con.createStatement();
-      if (this.dbms.equals("mysql")) {
+      if (JdbcDataSource.MYSQL == jdbcDataSource) {
         System.out.println("Dropping table SUPPLIERS from MySQL");
         stmt.executeUpdate("DROP TABLE IF EXISTS SUPPLIERS");
-      } else if (this.dbms.equals("derby")) {
+      } else if (JdbcDataSource.DB2 == jdbcDataSource) {
         stmt.executeUpdate("DROP TABLE SUPPLIERS");
       }
     } catch (SQLException e) {
@@ -156,23 +148,12 @@ public class SuppliersTable {
 
   public static void main(String[] args) {
 
-    JDBCTutorialUtilities myJDBCTutorialUtilities;
+    JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
     Connection myConnection = null;
 
-    if (args[0] == null) {
-      System.err.println("Properties file not specified at command line");
-      return;
-    } else {
-      try {
-        myJDBCTutorialUtilities = new JDBCTutorialUtilities(args[0]);
-      } catch (Exception e) {
-        System.err.println("Problem reading properties file " + args[0]);
-        e.printStackTrace();
-        return;
-      }
-    }
     try {
-      myConnection = myJDBCTutorialUtilities.getConnection();
+      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true);
 
       // Java DB does not have an SQL create database command; it does require createDatabase
 //      JDBCTutorialUtilities.createDatabase(myConnection,
