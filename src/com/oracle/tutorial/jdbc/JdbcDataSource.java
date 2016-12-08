@@ -24,7 +24,7 @@ public enum JdbcDataSource {
     @NotNull
     JdbcDataSource fromDbms(@NotNull String dbms) {
         for (JdbcDataSource jdbcDataSource : JdbcDataSource.values()) {
-            if (dbms.equals(jdbcDataSource.getDbms())) {
+            if (dbms.trim().equalsIgnoreCase(jdbcDataSource.getDbms())) {
                 return jdbcDataSource;
             }
         }
