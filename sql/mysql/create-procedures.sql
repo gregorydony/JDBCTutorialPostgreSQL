@@ -1,3 +1,4 @@
+DELIMITER |
 SELECT 'Dropping procedure SHOW_SUPPLIERS' AS ' '|
 drop procedure if exists SHOW_SUPPLIERS|
 
