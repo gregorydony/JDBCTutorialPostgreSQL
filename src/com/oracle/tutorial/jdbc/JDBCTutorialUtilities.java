@@ -207,7 +207,7 @@ public final class JDBCTutorialUtilities {
                     conn.setCatalog(dbName);
                     break;
                 case MYSQL:
-                    //DriverManager.registerDriver(new com.mysql.jdbc.Driver());
+                    DriverManager.registerDriver(new com.mysql.jdbc.Driver());
                     conn =
                             DriverManager.getConnection(getConnectionUrl(jdbcDataSource,createIfAbsent),
                                     connectionProps);
