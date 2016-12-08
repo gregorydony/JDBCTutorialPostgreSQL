@@ -51,7 +51,7 @@ public final class JDBCTutorialUtilities {
         SuppliersTable mySuppliersTable =
                 new SuppliersTable(con, jdbcDataSource);
         CoffeesTable myCoffeeTable =
-                new CoffeesTable(con, jdbcDataSource);
+                new CoffeesTable(con, jdbcDataSource.getDbName(), jdbcDataSource);
         RSSFeedsTable myRSSFeedsTable =
                 new RSSFeedsTable(con, jdbcDataSource);
         ProductInformationTable myPIT =
