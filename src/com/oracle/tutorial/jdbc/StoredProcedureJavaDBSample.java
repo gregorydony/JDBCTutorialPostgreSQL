@@ -316,10 +316,7 @@ public final class StoredProcedureJavaDBSample extends AbstractJdbcSample {
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
 
-        Connection myConnection = null;
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true);
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true)) {
             StoredProcedureJavaDBSample mySP =
                     new StoredProcedureJavaDBSample(myConnection,
                             jdbcDataSource);
@@ -337,12 +334,8 @@ public final class StoredProcedureJavaDBSample extends AbstractJdbcSample {
             System.out.println("\nRunning all stored procedures:");
             mySP.runStoredProcedures("Colombian", 0.10f, 19.99f);
 
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
-
     }
 }

@@ -120,10 +120,7 @@ public final class JoinSample extends AbstractJdbcSample {
   public static void main(String[] args) {
     JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
 
-    Connection myConnection = null;
-
-    try {
-      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
+    try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false)){
 
       System.out.println("\nCoffees bought by each supplier:");
       JoinSample.getCoffeesBoughtBySupplier("Acme, Inc.", myConnection);
@@ -134,9 +131,6 @@ public final class JoinSample extends AbstractJdbcSample {
 
     } catch (SQLException e) {
       JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      JDBCTutorialUtilities.closeConnection(myConnection);
     }
-
   }
 }

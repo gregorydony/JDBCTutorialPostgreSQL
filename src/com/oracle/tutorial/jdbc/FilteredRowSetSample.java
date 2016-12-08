@@ -69,26 +69,17 @@ public class FilteredRowSetSample extends AbstractJdbcSample {
     }
 
     public static void viewTable(Connection con) throws SQLException {
-        Statement stmt = null;
         String query = "select * from COFFEE_HOUSES";
-        try {
-            stmt = con.createStatement();
-
+        try ( Statement stmt = con.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
-
             while (rs.next()) {
                 System.out.println(rs.getInt("STORE_ID") + ", " +
                         rs.getString("CITY") + ", " + rs.getInt("COFFEE") +
                         ", " + rs.getInt("MERCH") + ", " +
                         rs.getInt("TOTAL"));
             }
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
     }
 
@@ -121,7 +112,6 @@ public class FilteredRowSetSample extends AbstractJdbcSample {
             frs.setFilter(myCityFilter);
             this.viewFilteredRowSet(frs);
 
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         }
@@ -130,10 +120,7 @@ public class FilteredRowSetSample extends AbstractJdbcSample {
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
 
-        Connection myConnection = null;
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false)){
             FilteredRowSetSample myFilteredRowSetSample =
                     new FilteredRowSetSample(myConnection, jdbcDataSource);
             myFilteredRowSetSample.testFilteredRowSet();
@@ -142,8 +129,6 @@ public class FilteredRowSetSample extends AbstractJdbcSample {
         } catch (Exception ex) {
             System.out.println("Unexpected exception");
             ex.printStackTrace();
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
     }
 }

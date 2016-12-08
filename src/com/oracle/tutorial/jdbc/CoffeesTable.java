@@ -254,12 +254,8 @@ public class CoffeesTable {
     }
 
     public void batchUpdate() throws SQLException {
-
-        Statement stmt = null;
-        try {
-
+        try (Statement stmt = con.createStatement()){
             this.con.setAutoCommit(false);
-            stmt = this.con.createStatement();
 
             stmt.addBatch("INSERT INTO COFFEES " +
                     "VALUES('Amaretto', 49, 9.99, 0, 0)");
@@ -278,9 +274,6 @@ public class CoffeesTable {
         } catch (SQLException ex) {
             JDBCTutorialUtilities.printSQLException(ex);
         } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
             this.con.setAutoCommit(true);
         }
     }
@@ -312,10 +305,8 @@ public class CoffeesTable {
     }
 
     public static void alternateViewTable(Connection con) throws SQLException {
-        Statement stmt = null;
         String query = "select COF_NAME, SUP_ID, PRICE, SALES, TOTAL from COFFEES";
-        try {
-            stmt = con.createStatement();
+        try (Statement stmt = con.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
                 String coffeeName = rs.getString(1);
@@ -328,10 +319,6 @@ public class CoffeesTable {
             }
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
     }
 
@@ -378,10 +365,7 @@ public class CoffeesTable {
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource = AbstractJdbcSample.getJdbcDataSource(args[0]);
 
-        Connection myConnection = null;
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false)){
 
             // Java DB does not have an SQL create database command; it does require createDatabase
 //      JDBCTutorialUtilities.createDatabase(myConnection,
@@ -436,8 +420,6 @@ public class CoffeesTable {
 
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
     }
 }

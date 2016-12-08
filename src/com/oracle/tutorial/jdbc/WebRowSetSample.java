@@ -121,13 +121,8 @@ public final class WebRowSetSample extends AbstractJdbcSample {
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
 
-        Connection myConnection = null;
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
-
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false)) {
             // Java DB does not have an SQL create database command; it does require createDatabase
-
 
             WebRowSetSample myWebRowSetSample = new WebRowSetSample(myConnection,
                     jdbcDataSource);
@@ -138,10 +133,7 @@ public final class WebRowSetSample extends AbstractJdbcSample {
         } catch (Exception ex) {
             System.out.println("Unexpected exception");
             ex.printStackTrace();
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
-
     }
 
 

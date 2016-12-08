@@ -61,11 +61,9 @@ public class DatalinkSample extends AbstractJdbcSample {
 
     public static void viewTable(Connection con, Proxy proxy) throws SQLException,
             IOException {
-        Statement stmt = null;
         String query = "SELECT document_name, url FROM data_repository";
 
-        try {
-            stmt = con.createStatement();
+        try (Statement stmt = con.createStatement()){
             ResultSet rs = stmt.executeQuery(query);
 
             if (rs.next()) {
@@ -103,21 +101,14 @@ public class DatalinkSample extends AbstractJdbcSample {
         } catch (Exception ex) {
             System.out.println("Unexpected exception");
             ex.printStackTrace();
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
     }
 
 
     public void addURLRow(String description, String url) throws SQLException {
 
-        PreparedStatement pstmt = null;
-
-        try {
-            pstmt = this.con.prepareStatement(
-                    "INSERT INTO data_repository(document_name,url) VALUES (?,?)");
+        try (PreparedStatement pstmt = con.prepareStatement(
+                "INSERT INTO data_repository(document_name,url) VALUES (?,?)")){
             pstmt.setString(1, description);
             pstmt.setURL(2, new URL(url));
             pstmt.execute();
@@ -126,17 +117,12 @@ public class DatalinkSample extends AbstractJdbcSample {
         } catch (Exception ex) {
             System.out.println("Unexpected exception");
             ex.printStackTrace();
-        } finally {
-            if (pstmt != null) {
-                pstmt.close();
-            }
         }
     }
 
     public static void main(String[] args) {
 
         JdbcDataSource jdbcDataSource;
-        Connection myConnection = null;
         Proxy myProxy;
         InetSocketAddress myProxyServer;
 
@@ -153,9 +139,7 @@ public class DatalinkSample extends AbstractJdbcSample {
             }
         }
 
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false);
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false)){
             DatalinkSample myDatalinkSample =
                     new DatalinkSample(myConnection, jdbcDataSource);
             myDatalinkSample.addURLRow("Oracle", "http://www.oracle.com");
@@ -169,8 +153,6 @@ public class DatalinkSample extends AbstractJdbcSample {
         } catch (Exception ex) {
             System.out.println("Unexpected exception");
             ex.printStackTrace();
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
     }
 }

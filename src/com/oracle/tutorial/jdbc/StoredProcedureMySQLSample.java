@@ -31,8 +31,6 @@
 
 package com.oracle.tutorial.jdbc;
 
-import com.sun.istack.internal.Nullable;
-
 import java.sql.*;
 
 public final class StoredProcedureMySQLSample extends AbstractJdbcSample {
@@ -247,10 +245,7 @@ public final class StoredProcedureMySQLSample extends AbstractJdbcSample {
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
 
-        Connection myConnection = null;
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false);
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false)){
 
             StoredProcedureMySQLSample myStoredProcedureSample =
                     new StoredProcedureMySQLSample(myConnection,
@@ -276,10 +271,6 @@ public final class StoredProcedureMySQLSample extends AbstractJdbcSample {
 
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
-
     }
-
 }

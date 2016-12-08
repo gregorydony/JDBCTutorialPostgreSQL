@@ -257,18 +257,6 @@ public final class JDBCTutorialUtilities {
         }
     }
 
-    public static void closeConnection(Connection connArg) {
-        System.out.println("Releasing all open resources ...");
-        try {
-            if (connArg != null) {
-                connArg.close();
-                connArg = null;
-            }
-        } catch (SQLException sqle) {
-            printSQLException(sqle);
-        }
-    }
-
     public static String convertDocumentToString(Document doc) throws TransformerConfigurationException,
             TransformerException {
         Transformer t = TransformerFactory.newInstance().newTransformer();
@@ -282,7 +270,6 @@ public final class JDBCTutorialUtilities {
 
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource;
-        Connection myConnection = null;
         if (args[0] == null) {
             System.err.println("Properties file not specified at command line");
             return;
@@ -297,8 +284,7 @@ public final class JDBCTutorialUtilities {
             }
         }
 
-        try {
-            myConnection = getConnectionToDatabase(jdbcDataSource, true);
+        try (Connection myConnection = getConnectionToDatabase(jdbcDataSource, true)){
             //      JDBCTutorialUtilities.outputClientInfoProperties(myConnection);
             // myConnection = myJDBCTutorialUtilities.getConnection("root", "root", "jdbc:mysql://localhost:3306/");
             //       myConnection = myJDBCTutorialUtilities.
@@ -316,9 +302,6 @@ public final class JDBCTutorialUtilities {
             printSQLException(e);
         } catch (Exception e) {
             e.printStackTrace(System.err);
-        } finally {
-            closeConnection(myConnection);
         }
-
     }
 }

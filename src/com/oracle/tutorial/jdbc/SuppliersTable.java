@@ -49,21 +49,15 @@ public class SuppliersTable extends AbstractJdbcSample {
       "SUP_NAME varchar(40) NOT NULL, " + "STREET varchar(40) NOT NULL, " +
       "CITY varchar(20) NOT NULL, " + "STATE char(2) NOT NULL, " +
       "ZIP char(5), " + "PRIMARY KEY (SUP_ID))";
-    Statement stmt = null;
-    try {
-      stmt = con.createStatement();
+    try (Statement stmt = con.createStatement()){
       stmt.executeUpdate(createString);
     } catch (SQLException e) {
       JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      if (stmt != null) { stmt.close(); }
     }
   }
 
   public void dropTable() throws SQLException {
-    Statement stmt = null;
-    try {
-      stmt = con.createStatement();
+    try (Statement stmt = con.createStatement()){
       if (JdbcDataSource.MYSQL == jdbcDataSource) {
         System.out.println("Dropping table SUPPLIERS from MySQL");
         stmt.executeUpdate("DROP TABLE IF EXISTS SUPPLIERS");
@@ -72,16 +66,11 @@ public class SuppliersTable extends AbstractJdbcSample {
       }
     } catch (SQLException e) {
       JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      if (stmt != null) { stmt.close(); }
     }
-
   }
 
   public void populateTable() throws SQLException {
-    Statement stmt = null;
-    try {
-      stmt = con.createStatement();
+    try (Statement stmt = con.createStatement()){
       stmt.executeUpdate("insert into SUPPLIERS " +
                          "values(49, 'Superior Coffee', '1 Party Place', " +
                          "'Mendocino', 'CA', '95460')");
@@ -93,17 +82,12 @@ public class SuppliersTable extends AbstractJdbcSample {
                          "'Meadows', 'CA', '93966')");
     } catch (SQLException e) {
       JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      if (stmt != null) { stmt.close(); }
     }
   }
 
   public void viewSuppliers() throws SQLException {
-
-    Statement stmt = null;
     String query = "select SUP_NAME, SUP_ID from SUPPLIERS";
-    try {
-      stmt = con.createStatement();
+    try (Statement stmt = con.createStatement()){
       ResultSet rs = stmt.executeQuery(query);
 
       System.out.println("Suppliers and their ID Numbers:");
@@ -116,18 +100,14 @@ public class SuppliersTable extends AbstractJdbcSample {
 
     } catch (SQLException e) {
       JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      if (stmt != null) { stmt.close(); }
     }
   }
 
 
   public static void viewTable(Connection con) throws SQLException {
-    Statement stmt = null;
     String query =
       "select SUP_ID, SUP_NAME, STREET, CITY, STATE, ZIP from SUPPLIERS";
-    try {
-      stmt = con.createStatement();
+    try (Statement stmt = con.createStatement()){
       ResultSet rs = stmt.executeQuery(query);
       while (rs.next()) {
         int supplierID = rs.getInt("SUP_ID");
@@ -141,8 +121,6 @@ public class SuppliersTable extends AbstractJdbcSample {
       }
     } catch (SQLException e) {
       JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      if (stmt != null) { stmt.close(); }
     }
   }
 
@@ -150,10 +128,7 @@ public class SuppliersTable extends AbstractJdbcSample {
 
     JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
 
-    Connection myConnection = null;
-
-    try {
-      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true);
+    try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, true)){
 
       // Java DB does not have an SQL create database command; it does require createDatabase
 //      JDBCTutorialUtilities.createDatabase(myConnection,
@@ -170,8 +145,6 @@ public class SuppliersTable extends AbstractJdbcSample {
 
     } catch (SQLException e) {
       JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      JDBCTutorialUtilities.closeConnection(myConnection);
     }
   }
 }

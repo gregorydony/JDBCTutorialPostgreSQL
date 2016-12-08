@@ -62,9 +62,9 @@ public final class CachedRowSetSample extends AbstractJdbcSample {
             crs.setPassword(jdbcDataSource.getPassword());
 
             if (JdbcDataSource.MYSQL == jdbcDataSource) {
-                crs.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource,false) + "?relaxAutoCommit=true");
+                crs.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource, false) + "?relaxAutoCommit=true");
             } else {
-                crs.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource,false));
+                crs.setUrl(JDBCTutorialUtilities.getConnectionUrl(jdbcDataSource, false));
             }
             crs.setCommand("select * from MERCH_INVENTORY");
 
@@ -172,12 +172,8 @@ public final class CachedRowSetSample extends AbstractJdbcSample {
     }
 
     private boolean doesItemIdExist(int id) throws SQLException {
-
-        Statement stmt = null;
         String query = "select ITEM_ID from MERCH_INVENTORY where ITEM_ID = " + id;
-        try {
-            stmt = con.createStatement();
-
+        try (Statement stmt = con.createStatement();) {
             ResultSet rs = stmt.executeQuery(query);
 
             if (rs.next()) {
@@ -186,64 +182,38 @@ public final class CachedRowSetSample extends AbstractJdbcSample {
 
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
         return false;
 
     }
 
     public static void viewTable(Connection con) throws SQLException {
-        Statement stmt = null;
         String query = "select * from MERCH_INVENTORY";
-        try {
-            stmt = con.createStatement();
-
+        try (Statement stmt = con.createStatement()) {
             ResultSet rs = stmt.executeQuery(query);
-
             while (rs.next()) {
                 System.out.println("Found item " + rs.getInt("ITEM_ID") + ": " +
                         rs.getString("ITEM_NAME") + " (" +
                         rs.getInt("QUAN") + ")");
             }
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
     }
 
 
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
-
-        Connection myConnection = null;
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
-
-            if (myConnection == null) {
-                System.out.println("myConnection is null");
-            }
-
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false)) {
             CachedRowSetSample myCachedRowSetSample =
                     new CachedRowSetSample(myConnection, jdbcDataSource);
             myCachedRowSetSample.viewTable(myConnection);
             myCachedRowSetSample.testPaging();
-
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
         } catch (Exception ex) {
             System.out.println("Unexpected exception");
             ex.printStackTrace();
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
     }
 }

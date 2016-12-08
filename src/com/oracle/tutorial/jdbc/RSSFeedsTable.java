@@ -253,10 +253,7 @@ public class RSSFeedsTable {
 
         JdbcDataSource jdbcDataSource = AbstractJdbcSample.getJdbcDataSource(args[0]);
 
-        Connection myConnection = null;
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false);
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false)){
 
             RSSFeedsTable myRSSFeedsTable =
                     new RSSFeedsTable(myConnection, jdbcDataSource);
@@ -267,10 +264,7 @@ public class RSSFeedsTable {
 
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
-
     }
 
 }

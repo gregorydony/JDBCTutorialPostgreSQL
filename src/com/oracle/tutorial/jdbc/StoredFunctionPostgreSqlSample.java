@@ -42,30 +42,17 @@ public final class StoredFunctionPostgreSqlSample extends AbstractJdbcSample {
     }
 
     private void createFunction(final String functionDrop, final String functionCreate) throws SQLException {
-        Statement stmt = null;
-        Statement stmtDrop = null;
-
-        try {
+        try (Statement stmtDrop = con.createStatement()){
             System.out.println("Calling DROP PROCEDURE");
-            stmtDrop = con.createStatement();
             stmtDrop.execute(functionDrop);
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            if (stmtDrop != null) {
-                stmtDrop.close();
-            }
         }
 
-        try {
-            stmt = con.createStatement();
+        try (Statement stmt = con.createStatement()){
             stmt.executeUpdate(functionCreate);
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            if (stmt != null) {
-                stmt.close();
-            }
         }
 
     }
@@ -219,12 +206,7 @@ public final class StoredFunctionPostgreSqlSample extends AbstractJdbcSample {
     public static void main(String[] args) {
         JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
 
-        Connection myConnection = null;
-
-
-        try {
-            myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false);
-
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false)){
             StoredFunctionPostgreSqlSample myStoredProcedureSample =
                     new StoredFunctionPostgreSqlSample(myConnection,
                             jdbcDataSource);
@@ -246,12 +228,8 @@ public final class StoredFunctionPostgreSqlSample extends AbstractJdbcSample {
 
             System.out.println("\nCalling all stored procedures:");
             myStoredProcedureSample.runStoredProcedures("Colombian", 0.10f, BigDecimal.valueOf(19.99));
-
         } catch (SQLException e) {
             JDBCTutorialUtilities.printSQLException(e);
-        } finally {
-            JDBCTutorialUtilities.closeConnection(myConnection);
         }
-
     }
 }

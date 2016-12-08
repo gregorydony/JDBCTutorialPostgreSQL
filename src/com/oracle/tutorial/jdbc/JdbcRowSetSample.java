@@ -36,121 +36,103 @@ import com.sun.rowset.JdbcRowSetImpl;
 import javax.sql.RowSet;
 import javax.sql.rowset.JdbcRowSet;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public final class JdbcRowSetSample extends AbstractJdbcSample {
 
-  public JdbcRowSetSample(Connection connArg,
-                          JdbcDataSource jdbcDataSource) {
-    super(connArg, jdbcDataSource);
-  }
+    public JdbcRowSetSample(Connection connArg,
+                            JdbcDataSource jdbcDataSource) {
+        super(connArg, jdbcDataSource);
+    }
 
-  public void testJdbcRowSet() throws SQLException {
+    public void testJdbcRowSet() throws SQLException {
 
-    JdbcRowSet jdbcRs = null;
-    ResultSet rs = null;
-    Statement stmt = null;
+        try (JdbcRowSet jdbcRs = new JdbcRowSetImpl(con)){
 
-    try {
-      
-        // An alternative way to create a JdbcRowSet object
-      
+            // An alternative way to create a JdbcRowSet object
+
 //      stmt = con.createStatement(ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
 //      rs = stmt.executeQuery("select * from COFFEES");
 //      jdbcRs = new JdbcRowSetImpl(rs);
-     
-        // Another way to create a JdbcRowSet object
-       
+
+            // Another way to create a JdbcRowSet object
+
 //      jdbcRs = new JdbcRowSetImpl();
 //      jdbcRs.setCommand("select * from COFFEES");
 //      jdbcRs.setUrl(this.settings.urlString);
 //      jdbcRs.setUsername(this.settings.userName);
 //      jdbcRs.setPassword(this.settings.password);
 //      jdbcRs.execute();
-      
-      jdbcRs = new JdbcRowSetImpl(con);
-      jdbcRs.setCommand("select * from COFFEES");
-      jdbcRs.execute();
-      
-      jdbcRs.absolute(3);
-      jdbcRs.updateFloat("PRICE", 10.99f);
-      jdbcRs.updateRow();
 
-      System.out.println("\nAfter updating the third row:");
-      CoffeesTable.viewTable(con);
+            jdbcRs.setCommand("select * from COFFEES");
+            jdbcRs.execute();
 
-      jdbcRs.moveToInsertRow();
-      jdbcRs.updateString("COF_NAME", "HouseBlend");
-      jdbcRs.updateInt("SUP_ID", 49);
-      jdbcRs.updateFloat("PRICE", 7.99f);
-      jdbcRs.updateInt("SALES", 0);
-      jdbcRs.updateInt("TOTAL", 0);
-      jdbcRs.insertRow();
+            jdbcRs.absolute(3);
+            jdbcRs.updateFloat("PRICE", 10.99f);
+            jdbcRs.updateRow();
 
-      jdbcRs.moveToInsertRow();
-      jdbcRs.updateString("COF_NAME", "HouseDecaf");
-      jdbcRs.updateInt("SUP_ID", 49);
-      jdbcRs.updateFloat("PRICE", 8.99f);
-      jdbcRs.updateInt("SALES", 0);
-      jdbcRs.updateInt("TOTAL", 0);
-      jdbcRs.insertRow();
+            System.out.println("\nAfter updating the third row:");
+            CoffeesTable.viewTable(con);
 
-      System.out.println("\nAfter inserting two rows:");
-      CoffeesTable.viewTable(con);
+            jdbcRs.moveToInsertRow();
+            jdbcRs.updateString("COF_NAME", "HouseBlend");
+            jdbcRs.updateInt("SUP_ID", 49);
+            jdbcRs.updateFloat("PRICE", 7.99f);
+            jdbcRs.updateInt("SALES", 0);
+            jdbcRs.updateInt("TOTAL", 0);
+            jdbcRs.insertRow();
 
-      jdbcRs.last();
-      jdbcRs.deleteRow();
+            jdbcRs.moveToInsertRow();
+            jdbcRs.updateString("COF_NAME", "HouseDecaf");
+            jdbcRs.updateInt("SUP_ID", 49);
+            jdbcRs.updateFloat("PRICE", 8.99f);
+            jdbcRs.updateInt("SALES", 0);
+            jdbcRs.updateInt("TOTAL", 0);
+            jdbcRs.insertRow();
 
-      System.out.println("\nAfter deleting last row:");
-      CoffeesTable.viewTable(con);
+            System.out.println("\nAfter inserting two rows:");
+            CoffeesTable.viewTable(con);
 
+            jdbcRs.last();
+            jdbcRs.deleteRow();
 
-    } catch (SQLException e) {
-      JDBCTutorialUtilities.printSQLException(e);
+            System.out.println("\nAfter deleting last row:");
+            CoffeesTable.viewTable(con);
+
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        } finally {
+            con.setAutoCommit(false);
+        }
     }
 
-    finally {
-      if (stmt != null) stmt.close();
-      this.con.setAutoCommit(false);
-    }
-  }
-  
-  private void outputRowSet(RowSet rs) throws SQLException {
-    rs.beforeFirst();
-    while (rs.next()) {
-      String coffeeName = rs.getString(1);
-      int supplierID = rs.getInt(2);
-      float price = rs.getFloat(3);
-      int sales = rs.getInt(4);
-      int total = rs.getInt(5);
-      System.out.println(coffeeName + ", " + supplierID + ", " + price +
-                         ", " + sales + ", " + total);
-      
-    }
-  }
+    private void outputRowSet(RowSet rs) throws SQLException {
+        rs.beforeFirst();
+        while (rs.next()) {
+            String coffeeName = rs.getString(1);
+            int supplierID = rs.getInt(2);
+            float price = rs.getFloat(3);
+            int sales = rs.getInt(4);
+            int total = rs.getInt(5);
+            System.out.println(coffeeName + ", " + supplierID + ", " + price +
+                    ", " + sales + ", " + total);
 
-  public static void main(String[] args) {
-    JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
-
-    Connection myConnection = null;
-
-
-    try {
-      myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource,false);
-
-      JdbcRowSetSample myJdbcRowSetSample =
-        new JdbcRowSetSample(myConnection, jdbcDataSource);
-      myJdbcRowSetSample.testJdbcRowSet();
-
-
-    } catch (SQLException e) {
-      JDBCTutorialUtilities.printSQLException(e);
-    } finally {
-      JDBCTutorialUtilities.closeConnection(myConnection);
+        }
     }
 
-  }
+    public static void main(String[] args) {
+        JdbcDataSource jdbcDataSource = getJdbcDataSource(args[0]);
+
+        try (Connection myConnection = JDBCTutorialUtilities.getConnectionToDatabase(jdbcDataSource, false)){
+
+            JdbcRowSetSample myJdbcRowSetSample =
+                    new JdbcRowSetSample(myConnection, jdbcDataSource);
+            myJdbcRowSetSample.testJdbcRowSet();
+
+        } catch (SQLException e) {
+            JDBCTutorialUtilities.printSQLException(e);
+        }
+
+    }
 
 }
