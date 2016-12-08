@@ -61,7 +61,7 @@ public class SuppliersTable extends AbstractJdbcSample {
       if (JdbcDataSource.MYSQL == jdbcDataSource) {
         System.out.println("Dropping table SUPPLIERS from MySQL");
         stmt.executeUpdate("DROP TABLE IF EXISTS SUPPLIERS");
-      } else if (JdbcDataSource.DB2 == jdbcDataSource) {
+      } else if (JdbcDataSource.DERBY == jdbcDataSource) {
         stmt.executeUpdate("DROP TABLE SUPPLIERS");
       }
     } catch (SQLException e) {

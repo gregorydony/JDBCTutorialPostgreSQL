@@ -11,7 +11,7 @@ import java.util.Properties;
  */
 public enum JdbcDataSource {
 
-    DB2("derby", "org.apache.derby.jdbc.EmbeddedDriver", "properties/javadb-sample-properties.xml"),
+    DERBY("derby", "org.apache.derby.jdbc.EmbeddedDriver", "properties/javadb-sample-properties.xml"),
     MYSQL("mysql", "com.mysql.jdbc.Driver", "properties/mysql-sample-properties.xml"),
     POSTGRESQL("postgresql", "org.postgresql.Driver", "properties/postgresql-sample-properties.xml"),;
 

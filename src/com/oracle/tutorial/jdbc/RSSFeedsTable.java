@@ -49,7 +49,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.sql.*;
 
-import static com.oracle.tutorial.jdbc.JdbcDataSource.DB2;
+import static com.oracle.tutorial.jdbc.JdbcDataSource.DERBY;
 import static com.oracle.tutorial.jdbc.JdbcDataSource.MYSQL;
 
 public class RSSFeedsTable {
@@ -69,7 +69,7 @@ public class RSSFeedsTable {
         Statement stmt = null;
         try {
 
-            if (DB2 == jdbcDataSource) {
+            if (DERBY == jdbcDataSource) {
                 String createString =
                         "create table RSS_FEEDS (RSS_NAME varchar(32) NOT NULL," +
                                 "  RSS_FEED_XML xml NOT NULL, PRIMARY KEY (RSS_NAME))";
@@ -99,7 +99,7 @@ public class RSSFeedsTable {
             stmt = con.createStatement();
             if (MYSQL == jdbcDataSource) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS RSS_FEEDS");
-            } else if (DB2 == jdbcDataSource) {
+            } else if (DERBY == jdbcDataSource) {
                 stmt.executeUpdate("DROP TABLE RSS_FEEDS");
             }
         } catch (SQLException e) {
@@ -171,7 +171,7 @@ public class RSSFeedsTable {
                 System.out.println("Running executeUpdate()");
                 insertRow.executeUpdate();
 
-            } else if (DB2 == jdbcDataSource) {
+            } else if (DERBY == jdbcDataSource) {
 
                 System.out.println("Adding XML file " + fileName);
                 String insertRowQuery =
@@ -208,7 +208,7 @@ public class RSSFeedsTable {
         Statement stmt = null;
         try {
             stmt = con.createStatement();
-            if (DB2 == jdbcDataSource) {
+            if (DERBY == jdbcDataSource) {
                 String query =
                         "select RSS_NAME, xmlserialize (RSS_FEED_XML as clob) from RSS_FEEDS";
                 ResultSet rs = stmt.executeQuery(query);

@@ -350,7 +350,7 @@ public class CoffeesTable {
             stmt = con.createStatement();
             if (MYSQL == jdbcDataSource) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS COFFEES");
-            } else if (DB2 == jdbcDataSource) {
+            } else if (DERBY == jdbcDataSource) {
                 stmt.executeUpdate("DROP TABLE COFFEES");
             }
         } catch (SQLException e) {

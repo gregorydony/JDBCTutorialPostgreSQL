@@ -213,7 +213,7 @@ public final class JDBCTutorialUtilities {
                                     connectionProps);
                     conn.setCatalog(dbName);
                     break;
-                case DB2:
+                case DERBY:
                     //DriverManager.registerDriver(new org.apache.derby.jdbc.EmbeddedDriver());
                     conn =
                             DriverManager.getConnection(getConnectionUrl(jdbcDataSource,createIfAbsent), connectionProps);
@@ -230,7 +230,7 @@ public final class JDBCTutorialUtilities {
         final int portNumber = jdbcDataSource.getPortNumber();
         final String dbName = jdbcDataSource.getDbName();
         switch (jdbcDataSource) {
-            case DB2:
+            case DERBY:
                 return "jdbc:" + dbms + ":" + dbName + (createIfAbsent ? ";create=true" : "");
             default :
                 return "jdbc:" + dbms + "://" + serverName +

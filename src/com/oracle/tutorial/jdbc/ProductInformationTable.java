@@ -135,7 +135,7 @@ public class ProductInformationTable {
         try (Statement stmt = con.createStatement()){
             if (JdbcDataSource.MYSQL == jdbcDataSource) {
                 stmt.executeUpdate("DROP TABLE IF EXISTS PRODUCT_INFORMATION");
-            } else if (JdbcDataSource.DB2 == jdbcDataSource) {
+            } else if (JdbcDataSource.DERBY == jdbcDataSource) {
                 stmt.executeUpdate("DROP TABLE PRODUCT_INFORMATION");
             }
         } catch (SQLException e) {
