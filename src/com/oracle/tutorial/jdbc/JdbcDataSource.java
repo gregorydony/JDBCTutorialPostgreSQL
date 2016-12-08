@@ -15,11 +15,6 @@ public enum JdbcDataSource {
     MYSQL("mysql", "com.mysql.jdbc.Driver", "properties/mysql-sample-properties.xml"),
     POSTGRESQL("postgresql", "org.postgresql.Driver", "properties/postgresql-sample-properties.xml"),;
 
-    private static final String DBMS_PLACEHOLDER = "%dbms%";
-    private static final String SERVER_NAME_PLACEHOLDER = "%serverName%";
-    private static final String PORT_NUMBER_PLACEHOLDER = "%portNumber%";
-    private static final String DB_NAME_PLACEHOLDER = "%dbName%";
-
     public static
     @NotNull
     JdbcDataSource fromDbms(@NotNull String dbms) {
@@ -39,9 +34,7 @@ public enum JdbcDataSource {
         this.dbms = dbms;
         this.jdbcDriver = jdbcDriver;
         this.properties = new Properties();
-        FileInputStream fis = null;
-        try {
-            fis = new FileInputStream(propertyFilePath);
+        try (FileInputStream fis = new FileInputStream(propertyFilePath)){
             properties.loadFromXML(fis);
         } catch (IOException ioe) {
             throw new RuntimeException("Unable to read properties from file " + propertyFilePath, ioe);
